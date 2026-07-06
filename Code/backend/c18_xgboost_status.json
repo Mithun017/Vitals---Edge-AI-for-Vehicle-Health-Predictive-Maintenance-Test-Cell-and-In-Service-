@@ -1,0 +1,15 @@
+{
+    "accuracy": 0.9226190476190477,
+    "trained_at": "2026-07-06T15:54:26.131179",
+    "num_samples": 8400,
+    "feature_importances": {
+        "rpm": 0.007215368095785379,
+        "load": 0.0071160150691866875,
+        "intake_pressure_res": 0.24204957485198975,
+        "combustion_temp_res": 0.06085361912846565,
+        "coolant_temp_res": 0.14868628978729248,
+        "oil_pressure_res": 0.3400963246822357,
+        "vibration_res": 0.18676353991031647,
+        "battery_voltage_res": 0.007219314109534025
+    }
+}

@@ -12,6 +12,7 @@ from replayer import C18Replayer
 from energy_field import EnergyFieldEngine
 from decision_engine import DecisionEngine
 from twin_model import C18TwinModel
+from xgboost_model import C18XGBoostModel
 
 app = FastAPI(title="VITALS Edge & LeakSense Twin Backend")
 
@@ -28,6 +29,7 @@ app.add_middleware(
 replayer = C18Replayer()
 energy_engine = EnergyFieldEngine()
 decision_engine = DecisionEngine()
+xgb_model = C18XGBoostModel()
 
 # In-memory history buffers
 history_log = []
@@ -102,6 +104,27 @@ def get_history():
 @app.get("/api/alerts")
 def get_alerts():
     return alerts_log[-30:]
+
+@app.get("/api/model/status")
+def get_model_status():
+    return {
+        "is_trained": xgb_model.is_trained,
+        "metadata": xgb_model.metadata
+    }
+
+@app.post("/api/model/train")
+def train_model():
+    try:
+        metadata = xgb_model.train(num_samples_per_class=1200)
+        return {
+            "status": "success",
+            "message": "XGBoost model trained successfully.",
+            "metadata": metadata
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return {"status": "error", "message": str(e)}
 
 @app.post("/api/chat")
 def get_chat_response(chat: ChatMessage):
@@ -285,6 +308,23 @@ async def handle_upload(file: UploadFile = File(...)):
         "results": results
     }
 
+class SafeStreamingResponse(StreamingResponse):
+    """
+    Subclass of StreamingResponse to catch and quietly suppress ClientDisconnected tracebacks.
+    """
+    async def __call__(self, scope, receive, send) -> None:
+        try:
+            await super().__call__(scope, receive, send)
+        except KeyboardInterrupt:
+            raise
+        except BaseException as e:
+            err_name = type(e).__name__
+            err_msg = str(e)
+            if "ClientDisconnected" in err_name or "ClientDisconnected" in err_msg:
+                pass
+            else:
+                raise e
+
 @app.get("/api/stream")
 async def sse_stream(request: Request):
     """
@@ -340,6 +380,9 @@ async def sse_stream(request: Request):
                     # 4. Run Decision Engine
                     diag = decision_engine.evaluate(anomaly_score, max_energy, current_rul, active_zone, severity)
                     
+                    # Predict zone probabilities with XGBoost
+                    zone_probs = xgb_model.predict_probabilities(actual, expected)
+
                     # Assemble packet
                     packet = {
                         "timestamp": data["timestamp"],
@@ -361,7 +404,8 @@ async def sse_stream(request: Request):
                         "anomaly_score": float(anomaly_score),
                         "diagnostics": diag,
                         "active_zone": active_zone,
-                        "severity": severity
+                        "severity": severity,
+                        "zone_probabilities": zone_probs
                     }
                     
                     # Add to history buffer
@@ -394,7 +438,7 @@ async def sse_stream(request: Request):
         except asyncio.CancelledError:
             pass
             
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return SafeStreamingResponse(event_generator(), media_type="text/event-stream")
 
 if __name__ == "__main__":
     import uvicorn

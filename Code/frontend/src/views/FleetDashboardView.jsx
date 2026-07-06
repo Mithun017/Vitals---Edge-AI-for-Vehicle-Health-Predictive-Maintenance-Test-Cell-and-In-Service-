@@ -26,12 +26,26 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
   const trk404Rul = liveData?.rul ? Math.round(liveData.rul / 24) : 6; // convert to days
   const trk404Conf = liveData?.diagnostics ? Math.round(liveData.diagnostics.confidence * 100) : 98;
 
+  const zoneProbs = liveData?.zone_probabilities || {
+    "Healthy": 1.0,
+    "Zone 1": 0.0,
+    "Zone 2": 0.0,
+    "Zone 3": 0.0,
+    "Zone 4": 0.0,
+    "Zone 5": 0.0,
+    "Zone 6": 0.0
+  };
+
   // Control states
   const [selectedZone, setSelectedZone] = useState('Zone 2');
   const [selectedSeverity, setSelectedSeverity] = useState('Critical');
   const [testActive, setTestActive] = useState(false);
   const [testProgress, setTestProgress] = useState(0);
   const [streamActive, setStreamActive] = useState(true);
+
+  // XGBoost model status and training states
+  const [modelStatus, setModelStatus] = useState({ is_trained: false, metadata: {} });
+  const [isTraining, setIsTraining] = useState(false);
 
   // Sync stream status by querying api/health
   const checkHealth = () => {
@@ -46,6 +60,13 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
   useEffect(() => {
     checkHealth();
     const interval = setInterval(checkHealth, 4000);
+
+    // Fetch initial model status
+    fetch('http://localhost:8000/api/model/status')
+      .then(res => res.json())
+      .then(data => setModelStatus(data))
+      .catch(e => console.error("Error fetching model status", e));
+
     return () => clearInterval(interval);
   }, []);
 
@@ -102,6 +123,24 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
       setTestActive(false);
       setTestProgress(0);
     }, 5000);
+  };
+
+  const handleTrainModel = () => {
+    setIsTraining(true);
+    fetch('http://localhost:8000/api/model/train', { method: 'POST' })
+      .then(res => res.json())
+      .then(data => {
+        setIsTraining(false);
+        if (data.status === 'success') {
+          setModelStatus({ is_trained: true, metadata: data.metadata });
+        } else {
+          alert("Error training model: " + data.message);
+        }
+      })
+      .catch(e => {
+        setIsTraining(false);
+        console.error("Error training model", e);
+      });
   };
 
   // Mock initial state for all 9 trucks in the fleet
@@ -913,6 +952,131 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* XGBOOST AI CLASSIFIER BLOCK */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '24px' }}>
+        
+        {/* Column 1: XGBoost Model Controller */}
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div>
+            <h3 style={{ fontSize: '16px', fontWeight: '700' }}>XGBoost AI Classifier</h3>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>EDGE DIAGNOSTIC MODEL STATUS</span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', justifyContent: 'center', flex: 1 }}>
+            <div style={{
+              padding: '16px',
+              borderRadius: '8px',
+              background: 'rgba(0, 0, 0, 0.02)',
+              border: '1px solid ' + (modelStatus.is_trained ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.2)'),
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '12px', fontWeight: '600' }}>Training Status:</span>
+                <span style={{
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  padding: '3px 8px',
+                  borderRadius: '4px',
+                  backgroundColor: modelStatus.is_trained ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.1)',
+                  color: modelStatus.is_trained ? 'var(--status-go)' : 'var(--status-critical)'
+                }}>
+                  {modelStatus.is_trained ? '● MODEL TRAINED' : '○ UNTRAINED'}
+                </span>
+              </div>
+
+              {modelStatus.is_trained && (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Validation Accuracy:</span>
+                    <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--status-go)' }}>
+                      {modelStatus.metadata?.accuracy ? (modelStatus.metadata.accuracy * 100).toFixed(2) : '0.00'}%
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Trained At:</span>
+                    <span style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-main)' }}>
+                      {modelStatus.metadata?.trained_at ? new Date(modelStatus.metadata.trained_at).toLocaleTimeString() : 'N/A'}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Training Data Size:</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text-main)' }}>
+                      {modelStatus.metadata?.num_samples || 0} samples
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <button
+              onClick={handleTrainModel}
+              disabled={isTraining || !streamActive}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '8px',
+                border: 'none',
+                background: isTraining || !streamActive ? '#f3f4f6' : 'var(--cat-yellow)',
+                color: isTraining || !streamActive ? '#a0aec0' : '#000000',
+                fontWeight: '700',
+                cursor: isTraining || !streamActive ? 'not-allowed' : 'pointer',
+                fontSize: '12px',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              {isTraining ? 'Training XGBoost Model (Generating Data...)...' : 'TRAIN XGBOOST AI CLASSIFIER'}
+            </button>
+          </div>
+        </div>
+
+        {/* Column 2: XGBoost Predicted Zone Probabilities */}
+        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div>
+            <h3 style={{ fontSize: '16px', fontWeight: '700' }}>XGBoost Suspected Zone Probabilities</h3>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>REAL-TIME MODEL INFERENCE DISTRIBUTIONS</span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, justifyContent: 'center' }}>
+            {[
+              { id: 'Healthy', name: 'Nominal Baseline (Healthy)', color: 'var(--status-go)' },
+              { id: 'Zone 1', name: 'Zone 1 — Intake Air (Turbo boost)', color: 'var(--status-info)' },
+              { id: 'Zone 2', name: 'Zone 2 — Charge Air Cooler (Radiator)', color: 'var(--status-warning)' },
+              { id: 'Zone 3', name: 'Zone 3 — Combustion Chamber', color: 'var(--status-critical)' },
+              { id: 'Zone 4', name: 'Zone 4 — Exhaust Manifold', color: 'var(--status-warning)' },
+              { id: 'Zone 5', name: 'Zone 5 — Turbocharger Pressure', color: '#8b5cf6' },
+              { id: 'Zone 6', name: 'Zone 6 — DPF / Aftertreatment', color: '#ec4899' },
+            ].map(z => {
+              const prob = zoneProbs[z.id] !== undefined ? zoneProbs[z.id] : 0.0;
+              const probPct = (prob * 100).toFixed(1);
+              return (
+                <div key={z.id} style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: '600' }}>
+                    <span style={{ color: prob > 0.3 ? z.color : 'var(--text-main)' }}>{z.name}</span>
+                    <span style={{ fontFamily: 'monospace' }}>{probPct}%</span>
+                  </div>
+                  <div style={{ height: '6px', backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
+                    <div style={{
+                      width: `${probPct}%`,
+                      height: '100%',
+                      backgroundColor: z.color,
+                      borderRadius: '3px',
+                      transition: 'width 0.4s ease-out, background-color 0.4s ease'
+                    }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
       </div>
 
     </div>
