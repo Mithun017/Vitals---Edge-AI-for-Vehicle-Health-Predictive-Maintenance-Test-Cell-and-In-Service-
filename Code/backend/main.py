@@ -6,6 +6,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
+import random
 
 from replayer import C18Replayer
 from energy_field import EnergyFieldEngine
