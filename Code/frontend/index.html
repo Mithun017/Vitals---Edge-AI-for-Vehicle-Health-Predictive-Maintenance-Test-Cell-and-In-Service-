@@ -9,6 +9,65 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Global Browser Extension Error Suppressor -->
+    <script>
+      (function() {
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        // Helper to check if string contains extension keywords
+        const isExtensionClutter = (str) => {
+          if (!str) return false;
+          const s = String(str);
+          return (
+            s.includes('MetaMask') ||
+            s.includes('inpage.js') ||
+            s.includes('contentscript.js') ||
+            s.includes('ObjectMultiplex') ||
+            s.includes('MaxListenersExceededWarning') ||
+            s.includes('web3') ||
+            s.includes('ethereum')
+          );
+        };
+
+        console.error = function(...args) {
+          if (args.some(arg => isExtensionClutter(arg) || isExtensionClutter(arg?.message) || isExtensionClutter(arg?.stack))) {
+            return; // Suppress quietly
+          }
+          originalError.apply(console, args);
+        };
+
+        console.warn = function(...args) {
+          if (args.some(arg => isExtensionClutter(arg))) {
+            return; // Suppress quietly
+          }
+          originalWarn.apply(console, args);
+        };
+
+        // Suppress unhandled promise rejections originating from injected wallet extensions
+        window.addEventListener('unhandledrejection', function(event) {
+          const reason = event.reason;
+          if (reason) {
+            const reasonStr = typeof reason === 'string' ? reason : (reason.message || reason.stack || '');
+            if (isExtensionClutter(reasonStr)) {
+              event.stopImmediatePropagation();
+              event.preventDefault();
+            }
+          }
+        }, true);
+
+        // Suppress standard error bubbles originating from extensions
+        window.addEventListener('error', function(event) {
+          if (
+            (event.filename && isExtensionClutter(event.filename)) ||
+            (event.message && isExtensionClutter(event.message))
+          ) {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+          }
+        }, true);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
