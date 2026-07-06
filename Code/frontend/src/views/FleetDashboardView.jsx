@@ -351,10 +351,10 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
 
         const newTemp = Math.round(v.temp + tempShift);
         const newPress = Math.round(v.press + pressShift);
-        const newVib = Number(Math.max(0.05, v.vib + vibShift)).toFixed(2);
+        const newVib = Number(Math.max(0.05, parseFloat(v.vib) + vibShift)).toFixed(2);
         const newLoad = Math.max(10, Math.min(100, v.load + loadShift));
         const newBoost = Math.max(40, Math.min(200, v.boost + boostShift));
-        const newBattery = Number(Math.max(18.0, Math.min(28.0, v.battery + batteryShift))).toFixed(1);
+        const newBattery = Number(Math.max(18.0, Math.min(28.0, parseFloat(v.battery) + batteryShift))).toFixed(1);
         const newExhaust = Math.round(v.exhaust + exhaustShift);
 
         return {
