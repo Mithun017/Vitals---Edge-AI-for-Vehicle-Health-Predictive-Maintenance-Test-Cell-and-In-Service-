@@ -1,15 +1,15 @@
 {
-    "accuracy": 0.9226190476190477,
-    "trained_at": "2026-07-06T15:54:26.131179",
+    "accuracy": 0.9273809523809524,
+    "trained_at": "2026-07-06T16:23:19.343369",
     "num_samples": 8400,
     "feature_importances": {
-        "rpm": 0.007215368095785379,
-        "load": 0.0071160150691866875,
-        "intake_pressure_res": 0.24204957485198975,
-        "combustion_temp_res": 0.06085361912846565,
-        "coolant_temp_res": 0.14868628978729248,
-        "oil_pressure_res": 0.3400963246822357,
-        "vibration_res": 0.18676353991031647,
-        "battery_voltage_res": 0.007219314109534025
+        "rpm": 0.006239619571715593,
+        "load": 0.006176406983286142,
+        "intake_pressure_res": 0.26752522587776184,
+        "combustion_temp_res": 0.0713488906621933,
+        "coolant_temp_res": 0.14146439731121063,
+        "oil_pressure_res": 0.27609339356422424,
+        "vibration_res": 0.2230241745710373,
+        "battery_voltage_res": 0.008127894252538681
     }
 }

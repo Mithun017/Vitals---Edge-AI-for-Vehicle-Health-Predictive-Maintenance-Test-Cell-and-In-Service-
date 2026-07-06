@@ -14,34 +14,56 @@
       (function() {
         const originalError = console.error;
         const originalWarn = console.warn;
+        const originalLog = console.log;
         
         // Helper to check if string contains extension keywords
-        const isExtensionClutter = (str) => {
-          if (!str) return false;
-          const s = String(str);
+        const isExtensionClutter = (arg) => {
+          if (!arg) return false;
+          const s = String(arg.stack || arg.message || arg);
           return (
             s.includes('MetaMask') ||
             s.includes('inpage.js') ||
             s.includes('contentscript.js') ||
             s.includes('ObjectMultiplex') ||
             s.includes('MaxListenersExceededWarning') ||
+            s.includes('EventEmitter memory leak') ||
             s.includes('web3') ||
             s.includes('ethereum')
           );
         };
 
-        console.error = function(...args) {
-          if (args.some(arg => isExtensionClutter(arg) || isExtensionClutter(arg?.message) || isExtensionClutter(arg?.stack))) {
-            return; // Suppress quietly
+        // Helper to dynamically inspect call stack for extension file patterns
+        const isFromExtensionStack = () => {
+          try {
+            const stack = new Error().stack || '';
+            return (
+              stack.includes('chrome-extension://') ||
+              stack.includes('contentscript.js') ||
+              stack.includes('inpage.js')
+            );
+          } catch (e) {
+            return false;
           }
+        };
+
+        const shouldSuppress = (args) => {
+          if (isFromExtensionStack()) return true;
+          return args.some(arg => isExtensionClutter(arg) || isExtensionClutter(arg?.message) || isExtensionClutter(arg?.stack));
+        };
+
+        console.error = function(...args) {
+          if (shouldSuppress(args)) return;
           originalError.apply(console, args);
         };
 
         console.warn = function(...args) {
-          if (args.some(arg => isExtensionClutter(arg))) {
-            return; // Suppress quietly
-          }
+          if (shouldSuppress(args)) return;
           originalWarn.apply(console, args);
+        };
+
+        console.log = function(...args) {
+          if (shouldSuppress(args)) return;
+          originalLog.apply(console, args);
         };
 
         // Suppress unhandled promise rejections originating from injected wallet extensions
@@ -49,7 +71,7 @@
           const reason = event.reason;
           if (reason) {
             const reasonStr = typeof reason === 'string' ? reason : (reason.message || reason.stack || '');
-            if (isExtensionClutter(reasonStr)) {
+            if (isExtensionClutter(reasonStr) || isFromExtensionStack()) {
               event.stopImmediatePropagation();
               event.preventDefault();
             }
@@ -59,8 +81,9 @@
         // Suppress standard error bubbles originating from extensions
         window.addEventListener('error', function(event) {
           if (
-            (event.filename && isExtensionClutter(event.filename)) ||
-            (event.message && isExtensionClutter(event.message))
+            (event.filename && (isExtensionClutter(event.filename) || event.filename.includes('contentscript') || event.filename.includes('inpage'))) ||
+            (event.message && isExtensionClutter(event.message)) ||
+            isFromExtensionStack()
           ) {
             event.stopImmediatePropagation();
             event.preventDefault();

@@ -308,6 +308,25 @@ async def handle_upload(file: UploadFile = File(...)):
         "results": results
     }
 
+def is_client_disconnect(e: BaseException) -> bool:
+    err_name = type(e).__name__
+    if "ClientDisconnected" in err_name or "ClientDisconnected" in str(e):
+        return True
+    
+    # Check ExceptionGroups recursively
+    sub_exceptions = getattr(e, "exceptions", None)
+    if sub_exceptions:
+        for sub_e in sub_exceptions:
+            if is_client_disconnect(sub_e):
+                return True
+                
+    if e.__cause__ and is_client_disconnect(e.__cause__):
+        return True
+    if e.__context__ and is_client_disconnect(e.__context__):
+        return True
+        
+    return False
+
 class SafeStreamingResponse(StreamingResponse):
     """
     Subclass of StreamingResponse to catch and quietly suppress ClientDisconnected tracebacks.
@@ -318,9 +337,7 @@ class SafeStreamingResponse(StreamingResponse):
         except KeyboardInterrupt:
             raise
         except BaseException as e:
-            err_name = type(e).__name__
-            err_msg = str(e)
-            if "ClientDisconnected" in err_name or "ClientDisconnected" in err_msg:
+            if is_client_disconnect(e):
                 pass
             else:
                 raise e
