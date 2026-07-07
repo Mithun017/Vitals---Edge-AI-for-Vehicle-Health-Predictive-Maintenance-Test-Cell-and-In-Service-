@@ -10,8 +10,14 @@ import {
   Play,
   Square,
   Activity,
-  Flame
+  Flame,
+  CheckCircle2,
+  Info,
+  Gauge
 } from 'lucide-react'
+import Card from '../components/common/Card'
+import StatusBadge from '../components/common/StatusBadge'
+import Button from '../components/common/Button'
 
 export default function FleetDashboardView({ liveData, history, alerts, onViewChange }) {
   // Extract TRK-404 live status from SSE stream
@@ -340,135 +346,89 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
   const warningCount = 114 + (trk404State === 'WATCH' || trk404State === 'WARNING' ? 1 : 0);
   const criticalCount = 32 + (trk404State === 'CRITICAL' ? 1 : 0);
 
-  const getStatusBadge = (state) => {
-    switch (state) {
-      case 'HEALTHY':
-        return { label: 'HEALTHY', bg: 'var(--status-go-bg)', color: 'var(--status-go)' };
-      case 'WATCH':
-      case 'WARNING':
-        return { label: 'WARNING', bg: 'var(--status-warning-bg)', color: 'var(--status-warning)' };
-      case 'CRITICAL':
-        return { label: 'CRITICAL', bg: 'var(--status-critical-bg)', color: 'var(--status-critical)' };
-      default:
-        return { label: 'HEALTHY', bg: 'var(--status-go-bg)', color: 'var(--status-go)' };
-    }
-  };
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minHeight: '100%' }}>
 
       {/* 1. SIMULATION CONTROL CENTER */}
-      <div className="glass-card" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.2fr', gap: '24px', padding: '20px' }}>
+      <Card className="dashboard-hero-grid responsive-grid" style={{ padding: '20px' }}>
 
         {/* Stream Engine Column */}
-        <div style={{ borderRight: '1px solid #e5e7eb', paddingRight: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div className="divider-col" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
-            <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <h4 className="md-typescale-title-small" style={{ color: 'var(--md-sys-color-on-surface)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
               <Cpu size={16} />
               Telemetry Stream Engine
             </h4>
-            <p style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: '1.4' }}>
+            <p className="md-typescale-body-small" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>
               Control the synthetic telemetry generator streaming live Caterpillar C18 test-cell variables.
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '12px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontWeight: 'bold' }}>STREAM STATUS</span>
-              <span style={{ fontSize: '13px', fontWeight: '800', color: streamActive ? 'var(--status-go)' : 'var(--text-muted)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: 'auto', paddingTop: '16px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', minWidth: 'max-content' }}>
+              <span className="md-typescale-label-small" style={{ color: 'var(--md-sys-color-on-surface-variant)', whiteSpace: 'nowrap' }}>STREAM STATUS</span>
+              <span className="md-typescale-title-small" style={{ color: streamActive ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-on-surface-variant)', whiteSpace: 'nowrap' }}>
                 {streamActive ? '● RUNNING' : '○ PAUSED'}
               </span>
             </div>
 
-            <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
-              <button
+            <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <Button
+                size="sm"
                 onClick={handleStartStream}
                 disabled={streamActive}
-                className="tbtn"
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid ' + (streamActive ? '#e5e7eb' : 'var(--status-go)'),
-                  background: streamActive ? 'transparent' : 'var(--status-go-bg)',
-                  color: streamActive ? '#cbd5e1' : 'var(--status-go)',
-                  fontWeight: '700',
-                  fontSize: '11px',
-                  cursor: streamActive ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
+                variant="primary"
               >
-                <Play size={12} fill="currentColor" />
+                <Play size={16} fill="currentColor" />
                 Start
-              </button>
-              <button
+              </Button>
+              <Button
+                size="sm"
                 onClick={handleStopStream}
                 disabled={!streamActive}
-                className="tbtn"
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid ' + (!streamActive ? '#e5e7eb' : 'var(--status-critical)'),
-                  background: !streamActive ? 'transparent' : 'var(--status-critical-bg)',
-                  color: !streamActive ? '#cbd5e1' : 'var(--status-critical)',
-                  fontWeight: '700',
-                  fontSize: '11px',
-                  cursor: !streamActive ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
+                variant={streamActive ? "danger" : "outlined"}
               >
-                <Square size={12} fill="currentColor" />
+                <Square size={16} fill="currentColor" />
                 Pause
-              </button>
+              </Button>
             </div>
           </div>
         </div>
 
         {/* Predictive Test Rig Column */}
-        <div style={{ borderRight: '1px solid #e5e7eb', paddingRight: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div className="divider-col-center" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
-            <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <h4 className="md-typescale-title-small" style={{ color: 'var(--md-sys-color-on-surface)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
               <Activity size={16} />
               Predictive Test Rig
             </h4>
-            <p style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: '1.4' }}>
+            <p className="md-typescale-body-small" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>
               Execute load-stress diagnostics tests by temporarily spiking RPM and engine load variables.
             </p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '9px', color: 'var(--text-muted)', fontWeight: 'bold' }}>TEST STATUS</span>
-                <span style={{ fontSize: '12px', fontWeight: '800', color: testActive ? 'var(--status-info)' : 'var(--text-main)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto', paddingTop: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', minWidth: 'max-content' }}>
+                <span className="md-typescale-label-small" style={{ color: 'var(--md-sys-color-on-surface-variant)', whiteSpace: 'nowrap' }}>TEST STATUS</span>
+                <span className="md-typescale-title-small" style={{ color: testActive ? 'var(--md-sys-color-secondary)' : 'var(--md-sys-color-on-surface)', whiteSpace: 'nowrap' }}>
                   {testActive ? `SWEEPING LOAD (${testProgress}%)` : 'IDLE'}
                 </span>
               </div>
 
-              <button
+              <Button
+                size="sm"
                 onClick={handleRunTestCycle}
                 disabled={testActive || !streamActive}
-                style={{
-                  padding: '8px 14px',
-                  borderRadius: '6px',
-                  border: 'none',
-                  background: testActive || !streamActive ? '#f3f4f6' : 'var(--cat-yellow)',
-                  color: testActive || !streamActive ? '#a0aec0' : '#000000',
-                  fontWeight: '700',
-                  fontSize: '11px',
-                  cursor: testActive || !streamActive ? 'not-allowed' : 'pointer'
-                }}
+                variant="primary"
               >
                 {testActive ? 'RUNNING...' : 'RUN TEST'}
-              </button>
+              </Button>
             </div>
 
             {testActive && (
-              <div style={{ width: '100%', height: '4px', background: '#f3f4f6', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ width: `${testProgress}%`, height: '100%', background: 'var(--status-info)', transition: 'width 1s linear' }} />
+              <div style={{ width: '100%', height: '4px', background: 'var(--md-sys-color-outline-variant)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{ width: `${testProgress}%`, height: '100%', background: 'var(--md-sys-color-secondary)', transition: 'width 1s linear' }} />
               </div>
             )}
           </div>
@@ -476,23 +436,26 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
 
         {/* Anomaly Injector Column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h4 className="md-typescale-title-small" style={{ color: 'var(--md-sys-color-on-surface)', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Flame size={16} />
             Anomaly Injector Panel
           </h4>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             <select
+              id="anomaly-zone"
+              name="anomaly-zone"
               value={selectedZone}
               onChange={e => setSelectedZone(e.target.value)}
               style={{
                 width: '100%',
                 padding: '6px 8px',
                 borderRadius: '6px',
-                border: '1px solid #e5e7eb',
+                border: '1px solid var(--md-sys-color-outline-variant)',
                 outline: 'none',
                 fontSize: '11px',
-                background: '#ffffff'
+                background: 'var(--md-sys-color-surface-container)',
+                color: 'var(--md-sys-color-on-surface)'
               }}
             >
               <option value="Zone 1">Zone 1 — Intake</option>
@@ -504,16 +467,19 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
             </select>
 
             <select
+              id="anomaly-severity"
+              name="anomaly-severity"
               value={selectedSeverity}
               onChange={e => setSelectedSeverity(e.target.value)}
               style={{
                 width: '100%',
                 padding: '6px 8px',
                 borderRadius: '6px',
-                border: '1px solid #e5e7eb',
+                border: '1px solid var(--md-sys-color-outline-variant)',
                 outline: 'none',
                 fontSize: '11px',
-                background: '#ffffff'
+                background: 'var(--md-sys-color-surface-container)',
+                color: 'var(--md-sys-color-on-surface)'
               }}
             >
               <option value="Small">Severity: Small</option>
@@ -522,63 +488,47 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
             </select>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px' }}>
-            <button
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', marginTop: 'auto', paddingTop: '8px' }}>
+            <Button
+              size="sm"
               onClick={handleInjectFault}
               disabled={!streamActive}
-              style={{
-                padding: '8px',
-                borderRadius: '6px',
-                background: !streamActive ? '#f3f4f6' : 'var(--cat-yellow)',
-                color: !streamActive ? '#a0aec0' : '#000000',
-                fontWeight: '700',
-                cursor: !streamActive ? 'not-allowed' : 'pointer',
-                border: 'none',
-                fontSize: '11px'
-              }}
+              variant="primary"
             >
-              INJECT ABNORMALITY
-            </button>
-            <button
+              INJECT FAULT
+            </Button>
+            <Button
+              size="sm"
               onClick={handleClearFault}
               disabled={!streamActive}
-              style={{
-                padding: '8px 12px',
-                borderRadius: '6px',
-                background: '#f3f4f6',
-                color: 'var(--text-main)',
-                fontWeight: '600',
-                cursor: !streamActive ? 'not-allowed' : 'pointer',
-                border: '1px solid #e5e7eb',
-                fontSize: '11px'
-              }}
+              variant="outlined"
             >
               CLEAR
-            </button>
+            </Button>
           </div>
         </div>
 
-      </div>
+      </Card>
 
       {/* 2. METRICS CARDS STRIP */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px' }}>
+      <div className="responsive-grid-cols-5 responsive-grid" style={{ gap: '16px' }}>
         {[
-          { label: 'TOTAL VEHICLES', val: totalVehicles.toLocaleString(), sub: '↑ 12 active today', icon: Users, color: '#4b5563' },
-          { label: 'HEALTHY', val: healthyCount.toLocaleString(), sub: `${((healthyCount / totalVehicles) * 100).toFixed(1)}% of fleet`, icon: CheckCircle, color: 'var(--status-go)' },
-          { label: 'WARNINGS', val: warningCount.toLocaleString(), sub: 'Require inspection', icon: AlertTriangle, color: 'var(--status-warning)' },
-          { label: 'CRITICAL FAULTS', val: criticalCount.toLocaleString(), sub: 'Immediate action needed', icon: XCircle, color: 'var(--status-critical)' },
-          { label: 'EDGE CONNECTIVITY', val: '99.8%', sub: '● Nodes Synced', icon: Cpu, color: 'var(--status-info)' },
+          { label: 'TOTAL VEHICLES', val: totalVehicles.toLocaleString(), sub: '↑ 12 active today', icon: Users, color: 'var(--md-sys-color-outline)' },
+          { label: 'HEALTHY', val: healthyCount.toLocaleString(), sub: `${((healthyCount / totalVehicles) * 100).toFixed(1)}% of fleet`, icon: CheckCircle, color: 'var(--md-sys-color-primary)' },
+          { label: 'WARNINGS', val: warningCount.toLocaleString(), sub: 'Require inspection', icon: AlertTriangle, color: 'var(--md-sys-color-tertiary)' },
+          { label: 'CRITICAL FAULTS', val: criticalCount.toLocaleString(), sub: 'Immediate action needed', icon: XCircle, color: 'var(--md-sys-color-error)' },
+          { label: 'EDGE CONNECTIVITY', val: '99.8%', sub: '● Nodes Synced', icon: Cpu, color: 'var(--md-sys-color-secondary)' },
         ].map((card, idx) => {
           const Icon = card.icon;
           return (
-            <div key={idx} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Card key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', letterSpacing: '0.5px' }}>{card.label}</span>
-                <h3 style={{ fontSize: '28px', fontWeight: '800', margin: '4px 0 2px 0' }}>{card.val}</h3>
-                <span style={{ fontSize: '11px', color: card.color, fontWeight: '500' }}>{card.sub}</span>
+                <span className="md-typescale-label-medium" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>{card.label}</span>
+                <h3 className="md-typescale-headline-medium" style={{ margin: '4px 0 2px 0', color: 'var(--md-sys-color-on-surface)' }}>{card.val}</h3>
+                <span className="md-typescale-label-medium" style={{ color: card.color }}>{card.sub}</span>
               </div>
               <div style={{
-                background: 'rgba(0,0,0,0.03)',
+                background: 'var(--md-sys-color-surface-variant)',
                 padding: '10px',
                 borderRadius: '50%',
                 display: 'flex',
@@ -587,39 +537,36 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
               }}>
                 <Icon size={24} color={card.color} />
               </div>
-            </div>
+            </Card>
           );
         })}
       </div>
 
       {/* 3. FLEET FOCUS AND GEOSPATIAL MAP */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px' }}>
+      <div className="dashboard-focus-grid responsive-grid">
 
         {/* Fleet Telemetry Focus Grid */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: '700' }}>Fleet Telemetry Focus</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+        <Card style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <h3 className="md-typescale-title-medium" style={{ color: 'var(--md-sys-color-on-surface)' }}>Fleet Telemetry Focus</h3>
+          <div className="responsive-grid-cols-3 responsive-grid" style={{ gap: '16px' }}>
             {vehicles.map(vehicle => {
-              const badge = getStatusBadge(vehicle.state);
-              const cardBorder = vehicle.state === 'CRITICAL' ? '2px solid var(--status-critical)' :
-                (vehicle.state !== 'HEALTHY' ? '2px solid var(--status-warning)' : '1px solid #e5e7eb');
+              const cardBorder = vehicle.state === 'CRITICAL' ? '2px solid var(--md-sys-color-error)' :
+                (vehicle.state !== 'HEALTHY' ? '2px solid var(--md-sys-color-tertiary)' : '1px solid var(--md-sys-color-outline-variant)');
               return (
                 <div
                   key={vehicle.id}
-                  onClick={() => {
-                    if (vehicle.id === 'TRK-404') onViewChange('vehicle');
-                  }}
+                  onClick={() => onViewChange(`vehicle/${vehicle.id}`)}
                   style={{
                     border: cardBorder,
                     borderRadius: '12px',
                     padding: '16px',
-                    cursor: vehicle.id === 'TRK-404' ? 'pointer' : 'default',
+                    cursor: 'pointer',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
                     gap: '12px',
                     position: 'relative',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+                    boxShadow: '0 2px 8px var(--md-sys-color-surface-variant)'
                   }}
                 >
                   {/* Status Banner Tag */}
@@ -628,19 +575,12 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
                     justifyContent: 'space-between',
                     alignItems: 'center'
                   }}>
-                    <span style={{ fontSize: '14px', fontWeight: '800' }}>{vehicle.id}</span>
-                    <span style={{
-                      fontSize: '9px',
-                      fontWeight: '700',
-                      padding: '2px 6px',
-                      borderRadius: '4px',
-                      backgroundColor: badge.bg,
-                      color: badge.color
-                    }}>{badge.label}</span>
+                    <span className="md-typescale-title-small" style={{ color: 'var(--md-sys-color-on-surface)' }}>{vehicle.id}</span>
+                    <StatusBadge state={vehicle.state} />
                   </div>
 
                   <div>
-                    <span style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'block' }}>{vehicle.model}</span>
+                    <span className="md-typescale-label-small" style={{ color: 'var(--md-sys-color-on-surface-variant)', display: 'block' }}>{vehicle.model}</span>
                   </div>
 
                   {/* Health and multi-parameter telemetry values */}
@@ -648,33 +588,33 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
                     display: 'grid',
                     gridTemplateColumns: 'repeat(3, 1fr)',
                     gap: '10px 6px',
-                    borderTop: '1px solid #f3f4f6',
+                    borderTop: '1px solid var(--md-sys-color-outline-variant)',
                     paddingTop: '10px',
                     marginTop: '4px'
                   }}>
-                    <div>
-                      <span style={{ fontSize: '9px', color: 'var(--text-muted)', display: 'block', fontWeight: '600' }}>Health</span>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: vehicle.health < 50 ? 'var(--status-critical)' : (vehicle.health < 80 ? 'var(--status-warning)' : 'var(--status-go)') }}>{vehicle.health}%</span>
+                    <div style={{ overflow: 'hidden' }}>
+                      <span className="md-typescale-label-small" style={{ color: 'var(--md-sys-color-on-surface-variant)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Health</span>
+                      <span className="md-typescale-title-small" style={{ color: vehicle.health < 50 ? 'var(--md-sys-color-error)' : (vehicle.health < 80 ? 'var(--md-sys-color-tertiary)' : 'var(--md-sys-color-primary)'), whiteSpace: 'nowrap' }}>{vehicle.health}%</span>
                     </div>
-                    <div>
-                      <span style={{ fontSize: '9px', color: 'var(--text-muted)', display: 'block', fontWeight: '600' }}>Pred. RUL</span>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)' }}>{vehicle.rul}</span>
+                    <div style={{ overflow: 'hidden' }}>
+                      <span className="md-typescale-label-small" style={{ color: 'var(--md-sys-color-on-surface-variant)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Pred. RUL</span>
+                      <span className="md-typescale-title-small" style={{ color: 'var(--md-sys-color-on-surface)', whiteSpace: 'nowrap' }}>{vehicle.rul}</span>
                     </div>
-                    <div>
-                      <span style={{ fontSize: '9px', color: 'var(--text-muted)', display: 'block', fontWeight: '600' }}>Temp</span>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: vehicle.temp > 100 ? 'var(--status-critical)' : (vehicle.temp > 93 ? 'var(--status-warning)' : 'var(--text-main)') }}>{vehicle.temp}°C</span>
+                    <div style={{ overflow: 'hidden' }}>
+                      <span className="md-typescale-label-small" style={{ color: 'var(--md-sys-color-on-surface-variant)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Temp</span>
+                      <span className="md-typescale-title-small" style={{ color: vehicle.temp > 100 ? 'var(--md-sys-color-error)' : (vehicle.temp > 93 ? 'var(--md-sys-color-tertiary)' : 'var(--md-sys-color-on-surface)'), whiteSpace: 'nowrap' }}>{vehicle.temp}°C</span>
                     </div>
-                    <div>
-                      <span style={{ fontSize: '9px', color: 'var(--text-muted)', display: 'block', fontWeight: '600' }}>Oil Press</span>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: vehicle.press < 45 ? 'var(--status-critical)' : 'var(--text-main)' }}>{vehicle.press} PSI</span>
+                    <div style={{ overflow: 'hidden' }}>
+                      <span className="md-typescale-label-small" style={{ color: 'var(--md-sys-color-on-surface-variant)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Oil Press</span>
+                      <span className="md-typescale-title-small" style={{ color: vehicle.press < 45 ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-on-surface)', whiteSpace: 'nowrap' }}>{vehicle.press} PSI</span>
                     </div>
-                    <div>
-                      <span style={{ fontSize: '9px', color: 'var(--text-muted)', display: 'block', fontWeight: '600' }}>Vibration</span>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: vehicle.vib > 0.6 ? 'var(--status-critical)' : (vehicle.vib > 0.3 ? 'var(--status-warning)' : 'var(--text-main)') }}>{vehicle.vib} g</span>
+                    <div style={{ overflow: 'hidden' }}>
+                      <span className="md-typescale-label-small" style={{ color: 'var(--md-sys-color-on-surface-variant)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Vibration</span>
+                      <span className="md-typescale-title-small" style={{ color: vehicle.vib > 0.6 ? 'var(--md-sys-color-error)' : (vehicle.vib > 0.3 ? 'var(--md-sys-color-tertiary)' : 'var(--md-sys-color-on-surface)'), whiteSpace: 'nowrap' }}>{vehicle.vib} g</span>
                     </div>
-                    <div>
-                      <span style={{ fontSize: '9px', color: 'var(--text-muted)', display: 'block', fontWeight: '600' }}>Load</span>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)' }}>{vehicle.load}%</span>
+                    <div style={{ overflow: 'hidden' }}>
+                      <span className="md-typescale-label-small" style={{ color: 'var(--md-sys-color-on-surface-variant)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Load</span>
+                      <span className="md-typescale-title-small" style={{ color: 'var(--md-sys-color-on-surface)', whiteSpace: 'nowrap' }}>{vehicle.load}%</span>
                     </div>
                   </div>
 
@@ -685,7 +625,7 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
                       alignItems: 'center',
                       gap: '4px',
                       fontSize: '10px',
-                      color: 'var(--cat-yellow)',
+                      color: 'var(--md-sys-color-primary)',
                       fontWeight: '600',
                       marginTop: '4px',
                       justifyContent: 'flex-end'
@@ -697,39 +637,39 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
               );
             })}
           </div>
-        </div>
+        </Card>
 
         {/* Interactive Energy Field 6x6 Matrix */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <Card style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h3 style={{ fontSize: '16px', fontWeight: '700' }}>Thermodynamic Correlation Matrix</h3>
-              <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'monospace' }}>6×6 CORRELATION DEVIATION MATRIX</span>
+              <h3 className="md-typescale-title-medium" style={{ color: 'var(--md-sys-color-on-surface)' }}>Thermodynamic Correlation Matrix</h3>
+              <span className="md-typescale-label-small mono-font" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>6×6 CORRELATION DEVIATION MATRIX</span>
             </div>
             <div style={{
               fontSize: '11px',
               fontWeight: '700',
               padding: '4px 10px',
               borderRadius: '6px',
-              backgroundColor: (liveData?.energy_field?.global_deviation || 0.14) > 2.5 ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)',
-              color: (liveData?.energy_field?.global_deviation || 0.14) > 2.5 ? 'var(--status-critical)' : 'var(--status-go)',
+              backgroundColor: (liveData?.energy_field?.global_deviation || 0.14) > 2.5 ? 'var(--md-sys-color-error-container)' : 'var(--md-sys-color-primary-container)',
+              color: (liveData?.energy_field?.global_deviation || 0.14) > 2.5 ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-primary)',
               fontFamily: 'monospace'
             }}>
               EF DEV: {(liveData?.energy_field?.global_deviation || 0.14).toFixed(2)}
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, justifyContent: 'center' }}>
-
+          <div className="responsive-table-container" style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, justifyContent: 'center' }}>
+            <div style={{ minWidth: '400px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {/* 6x6 Grid of cells */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(6, 1fr)',
               gap: '4px',
-              background: 'rgba(0,0,0,0.05)',
+              background: 'var(--md-sys-color-shadow)',
               padding: '8px',
               borderRadius: '8px',
-              border: '1px solid #e5e7eb'
+              border: '1px solid var(--md-sys-color-outline-variant)'
             }}>
               {(() => {
                 const labels = ['RPM', 'Load', 'Boost', 'Exh T', 'Cool T', 'Oil P'];
@@ -753,19 +693,24 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
                     const isDisrupted = diff > 0.05 && r !== c;
 
                     let bg = '';
-                    let border = '1px solid rgba(0,0,0,0.03)';
+                    let color = 'var(--md-sys-color-on-surface)';
+                    let border = '1px solid var(--md-sys-color-surface-variant)';
                     let boxShadow = 'none';
 
                     if (r === c) {
-                      bg = 'rgba(245,197,24,0.3)'; // Diagonal
+                      bg = 'var(--md-sys-color-tertiary-container)'; // Diagonal
+                      color = 'var(--md-sys-color-on-tertiary-container)';
                     } else if (isDisrupted) {
-                      bg = `rgba(239, 68, 68, ${(0.15 + diff * 1.5).toFixed(2)})`; // Drifted
-                      border = '1px solid var(--status-critical)';
-                      boxShadow = '0 0 6px rgba(239,68,68,0.3)';
+                      bg = `var(--md-sys-color-error-container)`; // Drifted
+                      border = '1px solid var(--md-sys-color-error)';
+                      boxShadow = '0 0 6px var(--md-sys-color-error-container)';
+                      color = 'var(--md-sys-color-on-error-container)';
                     } else if (val >= 0) {
-                      bg = `rgba(59, 130, 246, ${(0.05 + val * 0.5).toFixed(2)})`; // Positive correlation
+                      bg = `var(--md-sys-color-secondary-container)`; // Positive correlation
+                      color = 'var(--md-sys-color-on-secondary-container)';
                     } else {
-                      bg = `rgba(249, 115, 22, ${(0.05 + Math.abs(val) * 0.4).toFixed(2)})`; // Negative correlation
+                      bg = `var(--md-sys-color-tertiary-container)`; // Negative correlation
+                      color = 'var(--md-sys-color-on-tertiary-container)';
                     }
 
                     cells.push(
@@ -787,7 +732,7 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
                         }}
                         title={`${labels[r]} ↔ ${labels[c]}: ${val.toFixed(2)}${isDisrupted ? ` (Drift: ${diff.toFixed(2)})` : ''}`}
                       >
-                        <span style={{ fontSize: '9px', fontWeight: 'bold', color: r === c ? '#000000' : 'var(--text-main)' }}>
+                        <span className="md-typescale-label-small" style={{ color: color }}>
                           {val.toFixed(2)}
                         </span>
                       </div>
@@ -798,10 +743,11 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
               })()}
             </div>
 
+            </div>
             {/* Axis labels at bottom */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '4px', textAlign: 'center' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '4px', textAlign: 'center', padding: '0 8px' }}>
               {['RPM', 'Load', 'Boost', 'Exh T', 'Cool T', 'Oil P'].map((lbl, idx) => (
-                <span key={idx} style={{ fontSize: '9px', fontWeight: '700', color: 'var(--text-muted)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                <span key={idx} className="md-typescale-label-small" style={{ color: 'var(--md-sys-color-on-surface-variant)', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                   {lbl}
                 </span>
               ))}
@@ -811,19 +757,20 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
             <div style={{
               padding: '10px',
               borderRadius: '8px',
-              backgroundColor: 'rgba(0,0,0,0.02)',
-              borderLeft: '4px solid ' + ((liveData?.energy_field?.global_deviation || 0.14) > 2.5 ? 'var(--status-critical)' : 'var(--status-go)'),
+              backgroundColor: 'var(--md-sys-color-surface-variant)',
+              borderLeft: '4px solid ' + ((liveData?.energy_field?.global_deviation || 0.14) > 2.5 ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-primary)'),
               fontSize: '11px',
-              lineHeight: '1.4'
+              lineHeight: '1.4',
+              color: 'var(--md-sys-color-on-surface)'
             }}>
-              <strong>Thermodynamic Shift Status:</strong>{' '}
+              <strong style={{ color: 'var(--md-sys-color-on-surface)' }}>Thermodynamic Shift Status:</strong>{' '}
               {(liveData?.energy_field?.global_deviation || 0.14) > 2.5 ? (
-                <span style={{ color: 'var(--status-critical)' }}>
+                <span style={{ color: 'var(--md-sys-color-error)' }}>
                   Elevated thermodynamic drift detected. Most disrupted sensor relation:{' '}
                   <strong>{liveData?.energy_field?.most_disrupted_sensor || 'N/A'}</strong>. Check active zones.
                 </span>
               ) : (
-                <span style={{ color: 'var(--status-go)' }}>
+                <span style={{ color: 'var(--md-sys-color-primary)' }}>
                   All thermodynamic relationships are within nominal bounds. Cosine similarity:{' '}
                   <strong>{(liveData?.energy_field?.cosine_similarity || 0.999).toFixed(4)}</strong>.
                 </span>
@@ -831,17 +778,17 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
             </div>
 
           </div>
-        </div>
+        </Card>
 
       </div>
 
       {/* 4. LIVE EVENT FEED TABLE */}
-      <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: '700' }}>Live Event Feed</h3>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+      <Card style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <h3 className="md-typescale-title-medium" style={{ color: 'var(--md-sys-color-on-surface)' }}>Live Event Feed</h3>
+        <div className="responsive-table-container">
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', color: 'var(--md-sys-color-on-surface)' }}>
             <thead>
-              <tr style={{ borderBottom: '2px solid #f3f4f6', color: 'var(--text-muted)', textAlign: 'left' }}>
+              <tr style={{ borderBottom: '2px solid var(--md-sys-color-outline-variant)', color: 'var(--md-sys-color-on-surface-variant)', textAlign: 'left' }}>
                 <th style={{ padding: '12px' }}>SEVERITY</th>
                 <th style={{ padding: '12px' }}>TIMESTAMP</th>
                 <th style={{ padding: '12px' }}>EVENT DESCRIPTION</th>
@@ -853,24 +800,16 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
             <tbody>
               {/* Dynamic Alert rows */}
               {alerts.slice(-4).reverse().map((alert, idx) => {
-                const badge = getStatusBadge(alert.state);
                 return (
-                  <tr key={idx} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                  <tr key={idx} style={{ borderBottom: '1px solid var(--md-sys-color-outline-variant)' }}>
                     <td style={{ padding: '12px' }}>
-                      <span style={{
-                        fontSize: '10px',
-                        fontWeight: '700',
-                        padding: '3px 8px',
-                        borderRadius: '4px',
-                        backgroundColor: badge.bg,
-                        color: badge.color
-                      }}>{badge.label}</span>
+                      <StatusBadge state={alert.state} />
                     </td>
                     <td style={{ padding: '12px', fontFamily: 'monospace' }}>{new Date(alert.timestamp).toLocaleTimeString()}</td>
                     <td style={{ padding: '12px', fontWeight: '500' }}>{alert.message}</td>
                     <td style={{ padding: '12px', fontWeight: '700' }}>{alert.zone === 'Zone 2' ? 'TRK-404' : 'TRK-209'}</td>
-                    <td style={{ padding: '12px', color: 'var(--text-muted)' }}>{alert.severity} Deviations</td>
-                    <td style={{ padding: '12px', color: 'var(--text-muted)' }}>Just now</td>
+                    <td style={{ padding: '12px', color: 'var(--md-sys-color-on-surface-variant)' }}>{alert.severity} Deviations</td>
+                    <td style={{ padding: '12px', color: 'var(--md-sys-color-on-surface-variant)' }}>Just now</td>
                   </tr>
                 );
               })}
@@ -878,42 +817,42 @@ export default function FleetDashboardView({ liveData, history, alerts, onViewCh
               {/* Default Mock logs if alerts are empty */}
               {alerts.length === 0 && (
                 <>
-                  <tr style={{ borderBottom: '1px solid #f3f4f6' }}>
+                  <tr style={{ borderBottom: '1px solid var(--md-sys-color-outline-variant)' }}>
                     <td style={{ padding: '12px' }}>
-                      <span style={{ fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '4px', backgroundColor: 'var(--status-critical-bg)', color: 'var(--status-critical)' }}>CRITICAL</span>
+                      <StatusBadge state="CRITICAL" />
                     </td>
                     <td style={{ padding: '12px', fontFamily: 'monospace' }}>14:32:05</td>
                     <td style={{ padding: '12px', fontWeight: '500' }}>C18 Cooling System Anomaly Detected - High Thermal Drift</td>
                     <td style={{ padding: '12px', fontWeight: '700' }}>TRK-404</td>
-                    <td style={{ padding: '12px', color: 'var(--text-muted)' }}>Coolant Temp elevated</td>
-                    <td style={{ padding: '12px', color: 'var(--text-muted)' }}>12m ago</td>
+                    <td style={{ padding: '12px', color: 'var(--md-sys-color-on-surface-variant)' }}>Coolant Temp elevated</td>
+                    <td style={{ padding: '12px', color: 'var(--md-sys-color-on-surface-variant)' }}>12m ago</td>
                   </tr>
-                  <tr style={{ borderBottom: '1px solid #f3f4f6' }}>
+                  <tr style={{ borderBottom: '1px solid var(--md-sys-color-outline-variant)' }}>
                     <td style={{ padding: '12px' }}>
-                      <span style={{ fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '4px', backgroundColor: 'var(--status-warning-bg)', color: 'var(--status-warning)' }}>WARNING</span>
+                      <StatusBadge state="WARNING" />
                     </td>
                     <td style={{ padding: '12px', fontFamily: 'monospace' }}>14:30:11</td>
                     <td style={{ padding: '12px', fontWeight: '500' }}>Wheel Hub Temperature Warning - Deceleration Drift</td>
                     <td style={{ padding: '12px', fontWeight: '700' }}>TRK-755</td>
-                    <td style={{ padding: '12px', color: 'var(--text-muted)' }}>Brake Wear anomaly</td>
-                    <td style={{ padding: '12px', color: 'var(--text-muted)' }}>27m ago</td>
+                    <td style={{ padding: '12px', color: 'var(--md-sys-color-on-surface-variant)' }}>Brake Wear anomaly</td>
+                    <td style={{ padding: '12px', color: 'var(--md-sys-color-on-surface-variant)' }}>27m ago</td>
                   </tr>
-                  <tr style={{ borderBottom: '1px solid #f3f4f6' }}>
+                  <tr style={{ borderBottom: '1px solid var(--md-sys-color-outline-variant)' }}>
                     <td style={{ padding: '12px' }}>
-                      <span style={{ fontSize: '10px', fontWeight: '700', padding: '3px 8px', borderRadius: '4px', backgroundColor: 'var(--status-go-bg)', color: 'var(--status-go)' }}>HEALTHY</span>
+                      <StatusBadge state="HEALTHY" />
                     </td>
                     <td style={{ padding: '12px', fontFamily: 'monospace' }}>14:28:44</td>
                     <td style={{ padding: '12px', fontWeight: '500' }}>Diagnostic Sync Completed Successfully</td>
                     <td style={{ padding: '12px', fontWeight: '700' }}>TRK-880</td>
-                    <td style={{ padding: '12px', color: 'var(--text-muted)' }}>Baseline consistent</td>
-                    <td style={{ padding: '12px', color: 'var(--text-muted)' }}>29m ago</td>
+                    <td style={{ padding: '12px', color: 'var(--md-sys-color-on-surface-variant)' }}>Baseline consistent</td>
+                    <td style={{ padding: '12px', color: 'var(--md-sys-color-on-surface-variant)' }}>29m ago</td>
                   </tr>
                 </>
               )}
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
     </div>
   );

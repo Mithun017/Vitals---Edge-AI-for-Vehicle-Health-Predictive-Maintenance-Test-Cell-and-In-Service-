@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { KeyRound, ShieldAlert } from 'lucide-react'
+import Card from '../components/common/Card'
+import Button from '../components/common/Button'
 
 export default function LoginView({ onViewChange }) {
   const [username, setUsername] = useState('admin')
@@ -23,21 +25,19 @@ export default function LoginView({ onViewChange }) {
       height: '100%',
       backgroundColor: 'transparent'
     }}>
-      <div className="glass-card" style={{
+      <Card style={{
         width: '380px',
         padding: '32px',
         display: 'flex',
         flexDirection: 'column',
         gap: '20px',
-        boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
-        border: '1px solid #e5e7eb',
-        background: '#ffffff'
+        background: 'var(--md-sys-color-surface-container)'
       }}>
         {/* Title Brand */}
         <div style={{ textAlign: 'center' }}>
           <div style={{
-            background: 'var(--cat-yellow)',
-            color: '#000000',
+            background: 'var(--md-sys-color-primary)',
+            color: 'var(--md-sys-color-on-primary)',
             width: '48px',
             height: '48px',
             borderRadius: '12px',
@@ -50,8 +50,8 @@ export default function LoginView({ onViewChange }) {
           }}>
             V
           </div>
-          <h2 style={{ fontSize: '20px', fontWeight: 'bold' }}>Access Control Console</h2>
-          <p style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: '2px' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: 'var(--md-sys-color-on-surface)' }}>Access Control Console</h2>
+          <p style={{ fontSize: '11px', color: 'var(--md-sys-color-on-surface-variant)', textTransform: 'uppercase', marginTop: '2px' }}>
             VITALS Edge & LeakSense Twin
           </p>
         </div>
@@ -60,8 +60,8 @@ export default function LoginView({ onViewChange }) {
           <div style={{
             padding: '10px',
             borderRadius: '6px',
-            backgroundColor: 'var(--status-critical-bg)',
-            color: 'var(--status-critical)',
+            backgroundColor: 'var(--md-sys-color-error-container)',
+            color: 'var(--md-sys-color-on-error-container)',
             fontSize: '12px',
             fontWeight: '600',
             display: 'flex',
@@ -75,7 +75,7 @@ export default function LoginView({ onViewChange }) {
 
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)' }}>OPERATOR USERNAME</label>
+            <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--md-sys-color-on-surface-variant)' }}>OPERATOR USERNAME</label>
             <input
               type="text"
               value={username}
@@ -83,7 +83,9 @@ export default function LoginView({ onViewChange }) {
               style={{
                 padding: '10px 12px',
                 borderRadius: '6px',
-                border: '1px solid #e5e7eb',
+                border: '1px solid var(--md-sys-color-outline)',
+                background: 'var(--md-sys-color-surface)',
+                color: 'var(--md-sys-color-on-surface)',
                 fontSize: '14px',
                 outline: 'none'
               }}
@@ -91,7 +93,7 @@ export default function LoginView({ onViewChange }) {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)' }}>SECURITY KEY</label>
+            <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--md-sys-color-on-surface-variant)' }}>SECURITY KEY</label>
             <input
               type="password"
               value={password}
@@ -99,46 +101,36 @@ export default function LoginView({ onViewChange }) {
               style={{
                 padding: '10px 12px',
                 borderRadius: '6px',
-                border: '1px solid #e5e7eb',
+                border: '1px solid var(--md-sys-color-outline)',
+                background: 'var(--md-sys-color-surface)',
+                color: 'var(--md-sys-color-on-surface)',
                 fontSize: '14px',
                 outline: 'none'
               }}
             />
           </div>
 
-          <button
+          <Button
             type="submit"
-            style={{
-              padding: '12px',
-              borderRadius: '8px',
-              border: 'none',
-              background: 'var(--sidebar-bg-end)',
-              color: '#ffffff',
-              fontWeight: '700',
-              cursor: 'pointer',
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              marginTop: '8px'
-            }}
+            variant="primary"
+            fullWidth
+            style={{ marginTop: '8px' }}
           >
-            <KeyRound size={16} color="var(--cat-yellow)" />
+            <KeyRound size={16} />
             AUTHENTICATE ACCESS
-          </button>
+          </Button>
         </form>
 
         <div style={{
           textAlign: 'center',
           fontSize: '10px',
-          color: 'var(--text-muted)',
-          borderTop: '1px solid #f3f4f6',
+          color: 'var(--md-sys-color-outline)',
+          borderTop: '1px solid var(--md-sys-color-outline-variant)',
           paddingTop: '12px'
         }}>
           Default credentials loaded: admin / vitals-edge-404
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

@@ -3,214 +3,447 @@
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Vitals Twin — Cat C18 ACERT 3D Digital Twin</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet"><style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#01030a;--panel:rgba(4,10,24,0.95);--glass:rgba(5,12,26,0.88);
-  --b1:rgba(28,65,140,0.3);--b2:rgba(45,100,200,0.2);
-  --gold:#F5C518;--gold2:#c8a010;--gg:rgba(245,197,24,0.2);
+  --bg:#01030a;--panel:rgba(4,10,24,0.96);--glass:rgba(5,12,26,0.92);
+  --b1:rgba(28,65,140,0.35);--b2:rgba(45,100,200,0.22);
+  --gold:#F5C518;--gold2:#c8a010;--gg:rgba(245,197,24,0.22);
   --teal:#00FFE0;--teal2:#00c8b0;--gt:rgba(0,255,224,0.18);
   --blue:#3a9fff;--gb:rgba(58,159,255,0.2);
   --red:#FF2244;--gr:rgba(255,34,68,0.22);
   --orange:#FF6600;--go:rgba(255,102,0,0.2);
   --purple:#CC88FF;--cyan:#00DDFF;
-  --text:#B8CDE8;--muted:#3a5070;--bright:#EEF6FF;
+  --text:#C8DCF0;--muted:#8aafcc;--bright:#EEF6FF;
   --z1c:#00FFE0;--z2c:#3a9fff;--z3c:#FF6600;--zfc:#FFB300;
+  --fs-xs:9px;--fs-sm:10px;--fs-base:11px;--fs-md:12px;--fs-lg:14px;--fs-xl:16px;--fs-2xl:20px;--fs-3xl:24px;
 }
 html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Exo 2',sans-serif;color:var(--text)}
 body{display:flex;flex-direction:column}
 
-/* BOOT */
 #boot{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity 1.2s}
 #boot.out{opacity:0;pointer-events:none}
 .bl{font-family:'Orbitron',monospace;font-size:36px;font-weight:900;color:var(--gold);letter-spacing:.22em;text-shadow:0 0 50px var(--gg),0 0 100px rgba(245,197,24,.08)}
-.bs{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--teal);letter-spacing:.2em;margin-top:-10px}
+.bs{font-family:'Share Tech Mono',monospace;font-size:var(--fs-md);color:var(--teal);letter-spacing:.2em;margin-top:-10px}
 .bb{width:320px;height:2px;background:rgba(30,60,120,.4);border-radius:2px;overflow:hidden}
 .bp{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--blue),var(--gold));border-radius:2px;transition:width .08s}
-.bm{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.12em;min-height:16px}
+.bm{font-family:'Share Tech Mono',monospace;font-size:var(--fs-base);color:var(--muted);letter-spacing:.12em;min-height:16px}
 
-/* TOPBAR */
 #topbar{height:52px;background:var(--panel);border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 14px;gap:12px;flex-shrink:0;z-index:40;backdrop-filter:blur(24px)}
-.tc{background:var(--gold);color:#000;font-family:'Orbitron',monospace;font-weight:900;font-size:11px;padding:3px 8px;border-radius:2px;letter-spacing:.1em;flex-shrink:0}
-.tt{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--bright);line-height:1}
-.ts{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--muted);letter-spacing:.07em;margin-top:1px}
+.tc{background:var(--gold);color:#000;font-family:'Orbitron',monospace;font-weight:900;font-size:var(--fs-md);padding:3px 8px;border-radius:2px;letter-spacing:.1em;flex-shrink:0}
+.tt{font-family:'Orbitron',monospace;font-size:var(--fs-lg);font-weight:700;letter-spacing:.12em;color:var(--bright);line-height:1}
+.ts{font-family:'Share Tech Mono',monospace;font-size:var(--fs-xs);color:var(--muted);letter-spacing:.07em;margin-top:2px}
 .sep{width:1px;height:28px;background:var(--b2);flex-shrink:0}
 
-/* Model tabs */
 .mtabs{display:flex;gap:3px;padding:3px;background:rgba(0,0,0,.5);border-radius:7px;border:1px solid var(--b1)}
-.mtab{padding:5px 14px;border-radius:5px;font-family:'Orbitron',monospace;font-size:8px;font-weight:700;letter-spacing:.08em;cursor:pointer;transition:all .28s;color:var(--muted);background:transparent;border:none;line-height:1.3;text-align:center}
-.mtab span{display:block;font-family:'Share Tech Mono',monospace;font-size:7px;font-weight:400;opacity:.6;margin-top:1px}
+.mtab{padding:5px 14px;border-radius:5px;font-family:'Orbitron',monospace;font-size:var(--fs-sm);font-weight:700;letter-spacing:.08em;cursor:pointer;transition:all .28s;color:var(--muted);background:transparent;border:none;line-height:1.3;text-align:center}
+.mtab span{display:block;font-family:'Share Tech Mono',monospace;font-size:var(--fs-xs);font-weight:400;opacity:.7;margin-top:1px;color:var(--muted)}
 .mtab.on{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;box-shadow:0 0 16px var(--gg)}
+.mtab.on span{color:#000;opacity:.7}
 
-/* Status badge */
-#sbadge{display:flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;border:1px solid;font-family:'Orbitron',monospace;font-size:8px;font-weight:600;letter-spacing:.1em;transition:all .4s}
+#sbadge{display:flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;border:1px solid;font-family:'Orbitron',monospace;font-size:var(--fs-sm);font-weight:600;letter-spacing:.1em;transition:all .4s}
 .sbok{background:var(--gt);border-color:rgba(0,255,224,.4);color:var(--teal)}
 .sbad{background:var(--gr);border-color:rgba(255,34,68,.5);color:var(--red)}
-.sbd{width:6px;height:6px;border-radius:50%}
+.sbd{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .sbok .sbd{background:var(--teal);box-shadow:0 0 8px var(--teal);animation:dp 2s ease-in-out infinite}
 .sbad .sbd{background:var(--red);box-shadow:0 0 10px var(--red);animation:dp .5s ease-in-out infinite}
 @keyframes dp{0%,100%{opacity:1}50%{opacity:.2}}
 
-/* Topbar buttons */
-.tbtns{display:flex;gap:5px;flex-shrink:0}
-.tbtn{padding:5px 12px;border-radius:5px;border:1px solid;font-family:'Orbitron',monospace;font-size:8px;font-weight:600;letter-spacing:.09em;cursor:pointer;transition:all .2s;white-space:nowrap;background:transparent}
-.tbtn-demo{border-color:rgba(200,136,255,.3);color:var(--purple)}
+.tbtns{display:flex;gap:6px;flex-shrink:0}
+.tbtn{padding:6px 14px;border-radius:6px;border:1px solid;font-family:'Orbitron',monospace;font-size:var(--fs-sm);font-weight:700;letter-spacing:.09em;cursor:pointer;transition:all .2s;white-space:nowrap;background:transparent}
+.tbtn-demo{border-color:rgba(200,136,255,.4);color:var(--purple)}
 .tbtn-demo:hover,.tbtn-demo.on{background:rgba(200,136,255,.15);border-color:var(--purple);box-shadow:0 0 14px rgba(200,136,255,.25);animation:dpulse 1.8s ease-in-out infinite}
 @keyframes dpulse{0%,100%{box-shadow:0 0 14px rgba(200,136,255,.2)}50%{box-shadow:0 0 28px rgba(200,136,255,.5)}}
-.tbtn-clr{border-color:rgba(255,34,68,.25);color:var(--red)}
+.tbtn-clr{border-color:rgba(255,34,68,.35);color:var(--red)}
 .tbtn-clr:hover{background:rgba(255,34,68,.12);border-color:var(--red);box-shadow:0 0 10px var(--gr)}
-.tbtn-xp{border-color:rgba(245,197,24,.25);color:var(--gold)}
+.tbtn-xp{border-color:rgba(245,197,24,.35);color:var(--gold)}
 .tbtn-xp:hover,.tbtn-xp.on{background:rgba(245,197,24,.12);border-color:var(--gold);box-shadow:0 0 10px var(--gg)}
 
-/* Metrics */
 .tbmetrics{display:flex;margin-left:auto;flex-shrink:0}
 .tbm{padding:0 12px;border-left:1px solid var(--b2);text-align:center}
 .tbm:first-child{border-left:none}
-.tmv{font-family:'Orbitron',monospace;font-size:15px;font-weight:700;color:var(--gold);text-shadow:0 0 10px var(--gg);transition:color .3s}
-.tml{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--muted);letter-spacing:.08em;margin-top:1px}
+.tmv{font-family:'Orbitron',monospace;font-size:var(--fs-xl);font-weight:700;color:var(--gold);text-shadow:0 0 10px var(--gg);transition:color .3s}
+.tml{font-family:'Share Tech Mono',monospace;font-size:var(--fs-xs);color:var(--muted);letter-spacing:.08em;margin-top:2px}
 
-/* MAIN GRID */
-#main{flex:1;display:grid;grid-template-columns:220px 1fr 248px;overflow:hidden}
+#main{flex:1;display:grid;grid-template-columns:260px 1fr 268px;overflow:hidden}
 
-/* PANELS */
-.panel{background:var(--panel);backdrop-filter:blur(24px);overflow-y:auto;padding:11px 9px;display:flex;flex-direction:column;gap:8px}
-.panel::-webkit-scrollbar{width:2px}
-.panel::-webkit-scrollbar-thumb{background:var(--b2);border-radius:1px}
+.panel{background:var(--panel);backdrop-filter:blur(24px);overflow-y:auto;padding:12px 10px;display:flex;flex-direction:column;gap:10px}
+.panel::-webkit-scrollbar{width:3px}
+.panel::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
 #lp{border-right:1px solid var(--b1)}
 #rp{border-left:1px solid var(--b1)}
 
-/* Section header */
-.sh{font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:.2em;color:var(--muted);display:flex;align-items:center;gap:5px}
+.sh{
+  font-family:'Share Tech Mono',monospace;
+  font-size:var(--fs-xs);
+  letter-spacing:.22em;
+  color:var(--muted);
+  text-transform:uppercase;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding-bottom:2px;
+}
 .sh::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--b2),transparent)}
 
-/* Zone cards */
-.zcard{border:1px solid var(--b2);border-radius:6px;padding:8px 10px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;background:rgba(3,8,20,.6)}
+.zcard{
+  border:1px solid var(--b2);
+  border-radius:7px;
+  padding:9px 10px 9px 13px;
+  cursor:pointer;
+  transition:transform .18s ease, background .18s ease, border-color .18s ease;
+  position:relative;
+  overflow:hidden;
+  background:rgba(3,8,20,.65);
+}
 .zcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
 .zc1::before{background:var(--z1c);box-shadow:0 0 8px var(--z1c)}.zc2::before{background:var(--z2c)}.zc3::before{background:var(--z3c)}.zcf::before{background:var(--zfc)}
-.zcard:hover{transform:translateX(2px);background:rgba(6,16,40,.7)}
+.zcard:hover{transform:translateX(3px);background:rgba(6,16,40,.75)}
 .zcard.on.zc1{background:rgba(0,255,224,.06);border-color:rgba(0,255,224,.5)}
 .zcard.on.zc2{background:rgba(58,159,255,.06);border-color:rgba(58,159,255,.5)}
 .zcard.on.zc3{background:rgba(255,102,0,.07);border-color:rgba(255,102,0,.5)}
 .zcard.on.zcf{background:rgba(255,179,0,.06);border-color:rgba(255,179,0,.5)}
-.zn{font-family:'Orbitron',monospace;font-size:8px;font-weight:700;letter-spacing:.07em;margin-bottom:2px}
+.zn{
+  font-family:'Orbitron',monospace;
+  font-size:var(--fs-sm);
+  font-weight:700;
+  letter-spacing:.08em;
+  margin-bottom:3px;
+  text-transform:uppercase;
+}
 .zc1 .zn{color:var(--z1c)}.zc2 .zn{color:var(--z2c)}.zc3 .zn{color:var(--z3c)}.zcf .zn{color:var(--zfc)}
-.zd{font-size:9px;color:var(--muted);line-height:1.35}
-.zst{font-family:'Share Tech Mono',monospace;font-size:7px;margin-top:4px;letter-spacing:.06em;color:var(--teal)}
-.zst.bad{color:var(--red);animation:dp .9s ease-in-out infinite}
+.zd{font-family:'Exo 2',sans-serif;font-size:var(--fs-base);color:var(--text);line-height:1.45;opacity:.85}
+.zst{
+  font-family:'Share Tech Mono',monospace;
+  font-size:var(--fs-xs);
+  margin-top:5px;
+  letter-spacing:.08em;
+  color:var(--teal);
+  text-transform:uppercase;
+  display:inline-block;
+  padding:2px 6px;
+  border-radius:3px;
+  background:rgba(0,255,224,.08);
+  border:1px solid rgba(0,255,224,.18);
+}
+.zst.bad{
+  color:var(--red);
+  background:rgba(255,34,68,.1);
+  border-color:rgba(255,34,68,.35);
+  animation:dp .9s ease-in-out infinite;
+}
 
-/* Leak buttons */
-.lkgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px}
-.lkbtn{padding:7px 3px;border-radius:4px;background:rgba(3,8,20,.7);border:1px solid var(--b2);color:var(--muted);font-family:'Orbitron',monospace;font-size:7px;font-weight:700;letter-spacing:.05em;cursor:pointer;transition:all .18s;text-align:center;line-height:1.4}
-.lkbtn:hover{border-color:var(--orange);color:var(--orange);background:rgba(255,102,0,.08);transform:scale(1.04)}
-.lkbtn.on{border-color:var(--red);color:var(--red);background:rgba(255,34,68,.14);box-shadow:0 0 10px var(--gr)}
-.lksub{font-family:'Share Tech Mono',monospace;font-size:6px;opacity:.55;display:block;margin-top:1px;font-weight:400}
+/* ── Collapsible section system ───────────────────────────────── */
+.sec-wrap{display:flex;flex-direction:column;gap:0}
+.sec-hdr{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  cursor:pointer;
+  user-select:none;
+  padding:5px 0 4px;
+  border-bottom:1px solid var(--b2);
+  margin-bottom:0;
+  transition:opacity .15s;
+}
+.sec-hdr:hover{opacity:.8}
+.sec-hdr:active{opacity:.6}
+.sec-hdr .sh{border:none;padding:0;margin:0;flex:1;pointer-events:none}
+.sec-hdr .sh::after{display:none}
+.sec-arrow{
+  font-size:8px;
+  color:var(--muted);
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  flex-shrink:0;
+  margin-left:6px;
+  line-height:1;
+}
+.sec-arrow.open{transform:rotate(180deg)}
+.sec-body{
+  overflow:hidden;
+  max-height:0;
+  transition:max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s ease;
+  opacity:0;
+  padding:0;
+}
+.sec-body.open{
+  max-height:600px;
+  opacity:1;
+  padding-top:8px;
+  padding-bottom:4px;
+}
 
-/* Controls */
-.cr{display:flex;align-items:center;gap:7px}
-.cl{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--muted);min-width:46px;letter-spacing:.06em}
-.cs{flex:1;-webkit-appearance:none;height:2px;background:rgba(30,60,120,.5);border-radius:2px;outline:none;cursor:pointer}
-.cs::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gg);cursor:pointer;border:1px solid rgba(245,197,24,.4)}
-.cv{font-family:'Orbitron',monospace;font-size:8px;color:var(--gold);min-width:34px;text-align:right}
+/* ── Leak grid — 2-column with full label visibility ─────────── */
+.lkgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.lkbtn{
+  padding:10px 8px;
+  border-radius:6px;
+  background:rgba(8,18,40,.85);
+  border:1px solid rgba(45,100,200,0.35);
+  color:var(--text);
+  font-family:'Orbitron',monospace;
+  font-size:var(--fs-md);
+  font-weight:800;
+  letter-spacing:.04em;
+  cursor:pointer;
+  transition:all .18s ease;
+  text-align:center;
+  line-height:1.3;
+  position:relative;
+  overflow:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
+.lkbtn::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:rgba(255,255,255,0);
+  transition:background .12s ease;
+  border-radius:6px;
+}
+.lkbtn:active::after{background:rgba(255,255,255,.06)}
+.lkbtn:hover{
+  border-color:var(--orange);
+  color:var(--orange);
+  background:rgba(255,102,0,.1);
+  transform:translateY(-1px);
+  box-shadow:0 4px 14px rgba(255,102,0,.22);
+}
+.lkbtn:active{transform:translateY(0) scale(.97)}
+.lkbtn.on{
+  border-color:var(--red);
+  color:#fff;
+  background:rgba(255,34,68,.22);
+  box-shadow:0 0 16px var(--gr), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.lksub{
+  font-family:'Share Tech Mono',monospace;
+  font-size:var(--fs-xs);
+  color:var(--muted);
+  display:block;
+  margin-top:3px;
+  font-weight:500;
+  letter-spacing:.05em;
+  white-space:nowrap;
+}
+.lkbtn:hover .lksub{color:var(--orange);opacity:.9}
+.lkbtn.on .lksub{color:rgba(255,180,180,.8)}
 
-/* Camera buttons */
-.camgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
-.cambtn{padding:5px 2px;border-radius:4px;background:rgba(3,8,20,.6);border:1px solid var(--b2);color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:7px;cursor:pointer;transition:all .15s;text-align:center}
-.cambtn:hover,.cambtn.on{border-color:var(--gold);color:var(--gold);background:var(--gg)}
+.cr{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:6px 0;
+  border-bottom:1px solid rgba(28,65,140,.12);
+}
+.cr:last-child{border-bottom:none}
+.cl{
+  font-family:'Share Tech Mono',monospace;
+  font-size:var(--fs-xs);
+  color:var(--muted);
+  min-width:56px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.cs{flex:1;-webkit-appearance:none;height:3px;background:rgba(30,60,120,.55);border-radius:3px;outline:none;cursor:pointer;transition:background .2s}
+.cs:hover{background:rgba(45,90,160,.7)}
+.cs::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gg);cursor:pointer;border:1px solid rgba(245,197,24,.5);transition:transform .15s}
+.cs:active::-webkit-slider-thumb{transform:scale(1.25)}
+.cv{
+  font-family:'Orbitron',monospace;
+  font-size:var(--fs-base);
+  color:var(--gold);
+  min-width:36px;
+  text-align:right;
+  font-weight:700;
+}
 
-.clrbtn{padding:8px;border-radius:5px;background:rgba(255,34,68,.05);border:1px solid rgba(255,34,68,.2);color:rgba(255,100,110,.7);font-family:'Orbitron',monospace;font-size:7px;letter-spacing:.1em;cursor:pointer;transition:all .2s;width:100%}
-.clrbtn:hover{background:rgba(255,34,68,.12);border-color:var(--red);color:var(--red);box-shadow:0 0 10px var(--gr)}
+.camgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.cambtn{
+  padding:8px 4px;
+  border-radius:6px;
+  background:rgba(8,18,40,.8);
+  border:1px solid rgba(45,100,200,0.3);
+  color:var(--text);
+  font-family:'Share Tech Mono',monospace;
+  font-size:var(--fs-base);
+  font-weight:600;
+  cursor:pointer;
+  transition:all .15s ease;
+  text-align:center;
+  letter-spacing:.06em;
+  -webkit-tap-highlight-color:transparent;
+}
+.cambtn:hover{border-color:rgba(245,197,24,.5);color:var(--gold);background:rgba(245,197,24,.08);transform:translateY(-1px)}
+.cambtn:active{transform:scale(.96)}
+.cambtn.on{border-color:var(--gold);color:var(--gold);background:rgba(245,197,24,.14);box-shadow:0 0 12px var(--gg), inset 0 1px 0 rgba(255,255,255,.08)}
 
-/* Spec table */
+.clrbtn{
+  padding:11px 14px;
+  border-radius:7px;
+  background:rgba(255,34,68,.06);
+  border:1px solid rgba(255,34,68,.3);
+  color:var(--red);
+  font-family:'Orbitron',monospace;
+  font-size:var(--fs-sm);
+  font-weight:700;
+  letter-spacing:.1em;
+  cursor:pointer;
+  transition:all .2s ease;
+  width:100%;
+  text-transform:uppercase;
+  -webkit-tap-highlight-color:transparent;
+}
+.clrbtn:hover{background:rgba(255,34,68,.14);border-color:var(--red);box-shadow:0 0 14px var(--gr);color:#fff}
+
 .stbl{width:100%;border-collapse:collapse}
-.stbl td{padding:2px 4px;border-bottom:1px solid rgba(20,50,120,.18);font-family:'Share Tech Mono',monospace;font-size:8px}
-.stbl td:first-child{color:var(--muted);letter-spacing:.05em}
-.stbl td:last-child{color:var(--text);text-align:right}
-.sc{border:1px solid var(--b2);border-radius:5px;padding:7px 9px;background:rgba(3,8,20,.5)}
+.stbl td{padding:3px 5px;border-bottom:1px solid rgba(20,50,120,.2);font-family:'Share Tech Mono',monospace;font-size:var(--fs-base);line-height:1.6}
+.stbl td:first-child{color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.stbl td:last-child{color:var(--text);text-align:right;font-weight:600}
+.sc{border:1px solid var(--b2);border-radius:6px;padding:8px 10px;background:rgba(3,8,20,.5)}
 
-/* CANVAS WRAP */
 #cw{position:relative;overflow:hidden;background:radial-gradient(ellipse 80% 70% at 50% 52%,#030c1e 0%,#010508 65%,#000204 100%)}
 #cv{display:block;width:100%;height:100%}
 #fc{position:absolute;inset:0;pointer-events:none;z-index:4}
-#scanlines{position:absolute;inset:0;pointer-events:none;z-index:3;opacity:.4;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,140,255,.014) 2px,rgba(0,140,255,.014) 4px)}
+#scanlines{position:absolute;inset:0;pointer-events:none;z-index:3;opacity:.35;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,140,255,.012) 2px,rgba(0,140,255,.012) 4px)}
 #vignette{position:absolute;inset:0;pointer-events:none;z-index:3;background:radial-gradient(ellipse 82% 78% at 50% 50%,transparent 22%,rgba(0,1,6,.8) 100%)}
 
-/* Corner brackets */
 .bk{position:absolute;width:16px;height:16px;z-index:5;pointer-events:none}
 .bktl{top:8px;left:8px;border-top:2px solid var(--gold);border-left:2px solid var(--gold)}
 .bktr{top:8px;right:8px;border-top:2px solid var(--gold);border-right:2px solid var(--gold)}
 .bkbl{bottom:8px;left:8px;border-bottom:2px solid var(--gold);border-left:2px solid var(--gold)}
 .bkbr{bottom:8px;right:8px;border-bottom:2px solid var(--gold);border-right:2px solid var(--gold)}
 
-/* HUD */
-.hud{position:absolute;pointer-events:none;z-index:5;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.07em;line-height:1.9}
+.hud{position:absolute;pointer-events:none;z-index:5;font-family:'Share Tech Mono',monospace;font-size:var(--fs-base);color:var(--muted);letter-spacing:.07em;line-height:2.0}
 #htl{top:10px;left:10px}#htr{top:10px;right:10px;text-align:right}
 #hbl{bottom:10px;left:10px}#hbr{bottom:10px;right:10px;text-align:right}
 .hg{color:var(--gold)}.ht{color:var(--teal)}.hr{color:var(--red)}.ho{color:var(--orange)}
 
-/* Leak alert */
-#alert{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;display:none;pointer-events:none;background:rgba(0,1,8,.95);border:1px solid rgba(255,34,68,.65);border-radius:10px;padding:16px 28px;text-align:center;backdrop-filter:blur(16px);animation:aglow 1.2s ease-in-out infinite}
+#alert{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;display:none;pointer-events:none;background:rgba(0,1,8,.96);border:1px solid rgba(255,34,68,.65);border-radius:12px;padding:18px 32px;text-align:center;backdrop-filter:blur(16px);animation:aglow 1.2s ease-in-out infinite}
 @keyframes aglow{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 45px 8px rgba(255,34,68,.2)}}
-.alt{font-family:'Orbitron',monospace;font-size:19px;font-weight:900;color:var(--red);letter-spacing:.15em;text-shadow:0 0 20px var(--red)}
-.alz{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--orange);margin-top:5px;letter-spacing:.07em}
-.alc{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);margin-top:2px}
+.alt{font-family:'Orbitron',monospace;font-size:var(--fs-2xl);font-weight:900;color:var(--red);letter-spacing:.15em;text-shadow:0 0 20px var(--red)}
+.alz{font-family:'Share Tech Mono',monospace;font-size:var(--fs-md);color:var(--orange);margin-top:6px;letter-spacing:.07em}
+.alc{font-family:'Share Tech Mono',monospace;font-size:var(--fs-base);color:var(--muted);margin-top:3px}
 
-/* Model switch overlay */
 #mso{position:absolute;inset:0;z-index:15;pointer-events:none;background:rgba(0,1,5,.96);opacity:0;transition:opacity .4s;display:flex;align-items:center;justify-content:center}
 #mso.v{opacity:1}
-.msot{font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:var(--gold);letter-spacing:.18em;text-shadow:0 0 30px var(--gg)}
+.msot{font-family:'Orbitron',monospace;font-size:var(--fs-2xl);font-weight:700;color:var(--gold);letter-spacing:.18em;text-shadow:0 0 30px var(--gg)}
 
-/* ENGINE NAME overlay */
 #engname{position:absolute;bottom:48px;left:50%;transform:translateX(-50%);pointer-events:none;z-index:6;text-align:center;transition:opacity .5s}
-.ent{font-family:'Orbitron',monospace;font-size:17px;font-weight:900;color:var(--gold);letter-spacing:.16em;text-shadow:0 0 30px var(--gg)}
-.ens{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.12em;margin-top:2px}
+.ent{font-family:'Orbitron',monospace;font-size:var(--fs-xl);font-weight:900;color:var(--gold);letter-spacing:.16em;text-shadow:0 0 30px var(--gg)}
+.ens{font-family:'Share Tech Mono',monospace;font-size:var(--fs-base);color:var(--muted);letter-spacing:.12em;margin-top:3px}
 
-/* RIGHT PANEL */
-#gng{border-radius:7px;padding:12px;text-align:center;border:1px solid;transition:all .5s;position:relative;overflow:hidden}
-#gng::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 6px,rgba(255,255,255,.015) 6px,rgba(255,255,255,.015) 7px);pointer-events:none}
+#gng{border-radius:8px;padding:14px 12px;text-align:center;border:1px solid;transition:all .5s;position:relative;overflow:hidden;flex-shrink:0}
+#gng::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 6px,rgba(255,255,255,.012) 6px,rgba(255,255,255,.012) 7px);pointer-events:none}
 #gng.go{background:rgba(0,255,224,.05);border-color:rgba(0,255,224,.32)}
 #gng.ng{background:rgba(255,34,68,.09);border-color:rgba(255,34,68,.5);box-shadow:0 0 25px rgba(255,34,68,.12)}
-#gngl{font-family:'Orbitron',monospace;font-size:24px;font-weight:900;letter-spacing:.2em}
+#gngl{font-family:'Orbitron',monospace;font-size:var(--fs-3xl);font-weight:900;letter-spacing:.2em;line-height:1;margin-bottom:2px}
 #gng.go #gngl{color:var(--teal);text-shadow:0 0 16px var(--teal)}
 #gng.ng #gngl{color:var(--red);text-shadow:0 0 16px var(--red);animation:dp .7s ease-in-out infinite}
-#gngs{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--muted);margin-top:4px;letter-spacing:.07em}
+#gngs{font-family:'Share Tech Mono',monospace;font-size:var(--fs-base);color:var(--muted);margin-top:5px;letter-spacing:.05em;line-height:1.2}
 
-.dc{border:1px solid var(--b2);border-radius:6px;padding:9px 10px;background:rgba(3,8,20,.5)}
-.dr{display:flex;align-items:baseline;gap:7px;margin-bottom:5px}
-.dn{font-family:'Orbitron',monospace;font-size:24px;font-weight:700;color:var(--gold);text-shadow:0 0 12px var(--gg);transition:color .3s}
+.dc{border:1px solid var(--b2);border-radius:7px;padding:10px 12px;background:rgba(3,8,20,.5)}
+.dr{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.dn{font-family:'Orbitron',monospace;font-size:var(--fs-3xl);font-weight:700;color:var(--gold);text-shadow:0 0 12px var(--gg);transition:color .3s}
 .di{font-family:'Share Tech Mono',monospace}
-.dl{font-size:7px;color:var(--muted);letter-spacing:.07em}
-.dth{font-size:7px;margin-top:2px;letter-spacing:.06em;transition:color .3s}
-.dbg{height:4px;background:rgba(20,50,100,.6);border-radius:2px;overflow:hidden}
-.dbar{height:100%;border-radius:2px;transition:width .5s,background .4s}
+.dl{font-size:var(--fs-xs);color:var(--muted);letter-spacing:.07em;text-transform:uppercase}
+.dth{font-size:var(--fs-base);margin-top:3px;letter-spacing:.06em;font-weight:600;transition:color .3s}
+.dbg{height:5px;background:rgba(20,50,100,.6);border-radius:3px;overflow:hidden}
+.dbar{height:100%;border-radius:3px;transition:width .5s,background .4s}
 
-/* Sensor gauges */
-.sg{border:1px solid var(--b2);border-radius:5px;padding:7px 9px;background:rgba(3,8,20,.5);margin-bottom:4px;transition:border-color .3s}
-.sg.w{border-color:rgba(255,102,0,.5)}.sg.b{border-color:rgba(255,34,68,.5)}
-.sgtop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
-.sgn{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--muted);letter-spacing:.05em}
-.sgv{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;transition:color .3s}
-.sgu{font-size:6px;color:var(--muted);margin-left:1px}
-.sgbg{height:3px;background:rgba(20,50,100,.6);border-radius:2px;overflow:hidden;margin-bottom:3px}
+.sg{
+  border:1px solid var(--b2);
+  border-radius:6px;
+  padding:8px 10px;
+  background:rgba(3,8,20,.55);
+  margin-bottom:5px;
+  transition:border-color .3s, background .3s, box-shadow .3s;
+}
+.sg.w{border-color:rgba(255,102,0,.5);background:rgba(255,102,0,.04);box-shadow:0 0 12px rgba(255,102,0,.15)}
+.sg.b{border-color:rgba(255,34,68,.5);background:rgba(255,34,68,.04);box-shadow:0 0 14px rgba(255,34,68,.15)}
+.sgtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:6px}
+.sgn{
+  font-family:'Share Tech Mono',monospace;
+  font-size:var(--fs-xs);
+  color:var(--muted);
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.sgv{
+  font-family:'Orbitron',monospace;
+  font-size:var(--fs-xl);
+  font-weight:700;
+  transition:color .3s;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.sgu{font-size:var(--fs-xs);color:var(--muted);margin-left:2px;font-family:'Share Tech Mono',monospace}
+.sgbg{height:4px;background:rgba(20,50,100,.6);border-radius:2px;overflow:hidden;margin-bottom:4px}
 .sgf{height:100%;border-radius:2px;transition:width .4s,background .3s}
-.sgr{font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:.04em;transition:color .3s}
+.sgr{
+  font-family:'Share Tech Mono',monospace;
+  font-size:var(--fs-xs);
+  letter-spacing:.04em;
+  transition:color .3s;
+  font-weight:600;
+  padding:2px 0;
+}
 .sok{color:var(--teal)}.swc{color:var(--orange)}.sbc{color:var(--red)}
 
-/* Energy field */
-.efw{border:1px solid var(--b2);border-radius:6px;padding:8px 9px;background:rgba(3,8,20,.5)}
-.efg{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;margin:4px 0 3px}
-.efc{aspect-ratio:1;border-radius:2px;transition:background .5s;cursor:default;position:relative}
+.efw{border:1px solid var(--b2);border-radius:7px;padding:10px;background:rgba(3,8,20,.5)}
+.efg{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin:5px 0 4px}
+.efc{
+  aspect-ratio:1;
+  border-radius:3px;
+  transition:background .5s;
+  cursor:default;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.efc-val{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  font-weight:700;
+  color:rgba(255,255,255,0.95);
+  text-shadow:0 1px 3px rgba(0,0,0,0.9);
+  pointer-events:none;
+  letter-spacing:.02em;
+  line-height:1;
+}
+.eft{
+  display:none;
+  position:absolute;
+  bottom:115%;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(8,18,40,0.95);
+  color:#fff;
+  padding:4px 6px;
+  border-radius:4px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  white-space:nowrap;
+  z-index:20;
+  border:1px solid rgba(45,100,200,0.4);
+  box-shadow:0 4px 12px rgba(0,0,0,0.5);
+}
 .efc:hover .eft{display:block}
-.eft{display:none;position:absolute;bottom:115%;left:50%;transform:translateX(-50%);background:#0a1525;border:1px solid var(--b2);color:var(--text);font-family:'Share Tech Mono',monospace;font-size:7px;padding:2px 6px;border-radius:3px;white-space:nowrap;z-index:100;pointer-events:none}
 .eflb{display:grid;grid-template-columns:repeat(6,1fr);gap:2px}
-.efl{font-family:'Share Tech Mono',monospace;font-size:6px;color:var(--muted);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.efl{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 .ac{border:1px solid var(--b2);border-radius:6px;padding:8px 10px;background:rgba(3,8,20,.5);transition:border-color .3s}
 .ac.w{border-color:rgba(255,102,0,.4);background:rgba(255,102,0,.04)}
-.act{font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--muted);letter-spacing:.09em;margin-bottom:4px}
-.acv{font-size:9px;line-height:1.55;transition:color .3s}
+.act{font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--muted);letter-spacing:.09em;margin-bottom:4px}
+.acv{font-size:13px;line-height:1.55;transition:color .3s}
 
-#tip{position:fixed;z-index:100;pointer-events:none;background:var(--glass);border:1px solid var(--b2);border-radius:4px;padding:3px 9px;font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text);letter-spacing:.05em;display:none;backdrop-filter:blur(10px);transform:translate(12px,-50%);white-space:nowrap}
+#tip{position:fixed;z-index:100;pointer-events:none;background:var(--glass);border:1px solid var(--b2);border-radius:4px;padding:3px 9px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text);letter-spacing:.05em;display:none;backdrop-filter:blur(10px);transform:translate(12px,-50%);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -219,7 +452,7 @@ body{display:flex;flex-direction:column}
 <div id="boot">
   <div class="bl">VITALS TWIN</div>
   <div class="bs">CAT® C18 ACERT DITA — 3D DIGITAL TWIN v4.1</div>
-  <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--muted);text-align:center;line-height:2;letter-spacing:.1em">18.1L INLINE-6 · 597 kW · TWIN-TURBO DIESEL<br>BORE 145mm · STROKE 183mm · CR 16.3:1 · MEUI INJECTION</div>
+  <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--muted);text-align:center;line-height:2;letter-spacing:.1em">18.1L INLINE-6 · 597 kW · TWIN-TURBO DIESEL<br>BORE 145mm · STROKE 183mm · CR 16.3:1 · MEUI INJECTION</div>
   <div class="bb"><div class="bp" id="bp"></div></div>
   <div class="bm" id="bm">Initializing physics engine...</div>
 </div>
@@ -255,57 +488,134 @@ body{display:flex;flex-direction:column}
 <div id="main">
   <!-- LEFT PANEL -->
   <div class="panel" id="lp">
-    <div class="sh">Engine Zones</div>
-    <div class="zcard zc1" id="zc1" onclick="focusZone(1)"><div class="zn">Z1 — INTAKE</div><div class="zd">Airflow meter → Compressor inlet</div><div class="zst" id="zs1">■ NOMINAL</div></div>
-    <div class="zcard zc2" id="zc2" onclick="focusZone(2)"><div class="zn">Z2 — CHARGE AIR</div><div class="zd">Compressor → CAC → Intake manifold</div><div class="zst" id="zs2">■ NOMINAL</div></div>
-    <div class="zcard zc3" id="zc3" onclick="focusZone(3)"><div class="zn">Z3 — EXHAUST</div><div class="zd">Manifold → Turbo → DOC → DPF → SCR</div><div class="zst" id="zs3">■ NOMINAL</div></div>
-    <div class="zcard zcf" id="zcf" onclick="focusZone(4)"><div class="zn">ZF — FUEL SYSTEM</div><div class="zd">HP pump → Common rail → MEUI injectors</div><div class="zst" id="zsf">■ NOMINAL</div></div>
 
-    <div class="sh">Simulate Leak</div>
-    <div class="lkgrid">
-      <button class="lkbtn" id="lb-A" onclick="simLeak('A')">A<span class="lksub">Airflow</span></button>
-      <button class="lkbtn" id="lb-B" onclick="simLeak('B')">B<span class="lksub">Pre-CAC</span></button>
-      <button class="lkbtn" id="lb-C" onclick="simLeak('C')">C<span class="lksub">Post-CAC</span></button>
-      <button class="lkbtn" id="lb-D" onclick="simLeak('D')">D<span class="lksub">Exh.Man</span></button>
-      <button class="lkbtn" id="lb-E" onclick="simLeak('E')">E<span class="lksub">DPF/SCR</span></button>
-      <button class="lkbtn" id="lb-F" onclick="simLeak('F')">⚠FUEL<span class="lksub">Rail</span></button>
+    <!-- ══ ENGINE ZONES (open by default) ══ -->
+    <div class="sec-wrap">
+      <div class="sec-hdr" onclick="toggleSec('zones',this)">
+        <span class="sh">Engine Zones</span>
+        <span class="sec-arrow open">▼</span>
+      </div>
+      <div class="sec-body open" id="sec-zones">
+        <div class="zcard zc1" id="zc1" onclick="focusZone(1)">
+          <div class="zn">Z1 — INTAKE</div>
+          <div class="zd">Airflow meter → Compressor inlet</div>
+          <div class="zst" id="zs1">■ NOMINAL</div>
+        </div>
+        <div class="zcard zc2" id="zc2" onclick="focusZone(2)" style="margin-top:5px">
+          <div class="zn">Z2 — CHARGE AIR</div>
+          <div class="zd">Compressor → CAC → Intake manifold</div>
+          <div class="zst" id="zs2">■ NOMINAL</div>
+        </div>
+        <div class="zcard zc3" id="zc3" onclick="focusZone(3)" style="margin-top:5px">
+          <div class="zn">Z3 — EXHAUST</div>
+          <div class="zd">Manifold → Turbo → DOC → DPF → SCR</div>
+          <div class="zst" id="zs3">■ NOMINAL</div>
+        </div>
+        <div class="zcard zcf" id="zcf" onclick="focusZone(4)" style="margin-top:5px">
+          <div class="zn">ZF — FUEL SYSTEM</div>
+          <div class="zd">HP pump → Common rail → MEUI injectors</div>
+          <div class="zst" id="zsf">■ NOMINAL</div>
+        </div>
+      </div>
     </div>
 
-    <div class="sh">Severity</div>
-    <div class="cr"><span class="cl">SEVERITY</span><input type="range" min="1" max="3" value="2" class="cs" id="sev-sl" oninput="onSev(this.value)"><span class="cv" id="sev-v">MED</span></div>
-
-    <div class="sh">Engine Control</div>
-    <div class="cr"><span class="cl">RPM</span><input type="range" min="1100" max="2100" value="1800" step="100" class="cs" id="rpm-sl" oninput="onRPM(this.value)"><span class="cv" id="rpm-v" style="min-width:40px">1800</span></div>
-    <div class="cr"><span class="cl">LOAD %</span><input type="range" min="20" max="100" value="75" step="5" class="cs" id="load-sl" oninput="onLoad(this.value)"><span class="cv" id="load-v">75%</span></div>
-
-    <div class="sh">Camera</div>
-    <div class="camgrid">
-      <button class="cambtn on" id="cb-iso" onclick="setCam('iso')">ISO</button>
-      <button class="cambtn" id="cb-front" onclick="setCam('front')">FRONT</button>
-      <button class="cambtn" id="cb-side" onclick="setCam('side')">SIDE</button>
-      <button class="cambtn" id="cb-top" onclick="setCam('top')">TOP</button>
-      <button class="cambtn" id="cb-rear" onclick="setCam('rear')">REAR</button>
-      <button class="cambtn" id="cb-q45" onclick="setCam('q45')">45°</button>
+    <!-- ══ SIMULATE LEAK (open by default) ══ -->
+    <div class="sec-wrap">
+      <div class="sec-hdr" onclick="toggleSec('leak',this)">
+        <span class="sh">Simulate Leak</span>
+        <span class="sec-arrow open">▼</span>
+      </div>
+      <div class="sec-body open" id="sec-leak">
+        <div class="lkgrid">
+          <button class="lkbtn" id="lb-A" onclick="simLeak('A')">A<span class="lksub">Airflow</span></button>
+          <button class="lkbtn" id="lb-B" onclick="simLeak('B')">B<span class="lksub">Pre-CAC</span></button>
+          <button class="lkbtn" id="lb-C" onclick="simLeak('C')">C<span class="lksub">Post-CAC</span></button>
+          <button class="lkbtn" id="lb-D" onclick="simLeak('D')">D<span class="lksub">Exh. Man</span></button>
+          <button class="lkbtn" id="lb-E" onclick="simLeak('E')">E<span class="lksub">DPF/SCR</span></button>
+          <button class="lkbtn" id="lb-F" onclick="simLeak('F')" style="border-color:rgba(255,179,0,.35);color:var(--zfc)">⚠ FUEL<span class="lksub" style="color:var(--muted)">Rail Leak</span></button>
+        </div>
+        <div style="margin-top:8px">
+          <div class="cr" style="border:none;padding:4px 0 0">
+            <span class="cl">SEVERITY</span>
+            <input type="range" min="1" max="3" value="2" class="cs" id="sev-sl" oninput="onSev(this.value)">
+            <span class="cv" id="sev-v">MED</span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="cr"><span class="cl">ZOOM</span><input type="range" min="4" max="30" value="15" class="cs" id="zoom-sl" oninput="onZoom(this.value)"></div>
-    <div class="cr"><span class="cl">OPACITY</span><input type="range" min="10" max="100" value="100" class="cs" id="opac-sl" oninput="onOpacity(this.value)"><span class="cv" id="opac-v">100%</span></div>
 
-    <div class="sh">C18 Live Specs</div>
-    <div class="sc">
-      <table class="stbl">
-        <tr><td>DISPLACEMENT</td><td>18.1 L</td></tr>
-        <tr><td>BORE × STROKE</td><td>145 × 183 mm</td></tr>
-        <tr><td>CYLINDERS</td><td>In-Line 6</td></tr>
-        <tr><td>COMP RATIO</td><td>16.3:1</td></tr>
-        <tr><td>ASPIRATION</td><td>DITA Twin-TC</td></tr>
-        <tr><td>FUEL SYSTEM</td><td>MEUI Injection</td></tr>
-        <tr><td>ECU</td><td>ADEM™ A4</td></tr>
-        <tr><td>MAX POWER</td><td>597 kW @ 2100</td></tr>
-        <tr><td>MAX TORQUE</td><td id="spec-tq">3165 N·m @ 1800</td></tr>
-        <tr><td>EMISSIONS</td><td>EPA Tier 3 equiv.</td></tr>
-      </table>
+    <!-- ══ ENGINE CONTROL (open by default) ══ -->
+    <div class="sec-wrap">
+      <div class="sec-hdr" onclick="toggleSec('engine',this)">
+        <span class="sh">Engine Control</span>
+        <span class="sec-arrow open">▼</span>
+      </div>
+      <div class="sec-body open" id="sec-engine">
+        <div class="cr">
+          <span class="cl">RPM</span>
+          <input type="range" min="1100" max="2100" value="1800" step="100" class="cs" id="rpm-sl" oninput="onRPM(this.value)">
+          <span class="cv" id="rpm-v" style="min-width:36px">1800</span>
+        </div>
+        <div class="cr">
+          <span class="cl">LOAD %</span>
+          <input type="range" min="20" max="100" value="75" step="5" class="cs" id="load-sl" oninput="onLoad(this.value)">
+          <span class="cv" id="load-v">75%</span>
+        </div>
+      </div>
     </div>
-    <button class="clrbtn" onclick="clearLeak()">✕ CLEAR SIMULATION</button>
+
+    <!-- ══ CAMERA (open by default) ══ -->
+    <div class="sec-wrap">
+      <div class="sec-hdr" onclick="toggleSec('camera',this)">
+        <span class="sh">Camera</span>
+        <span class="sec-arrow open">▼</span>
+      </div>
+      <div class="sec-body open" id="sec-camera">
+        <div class="camgrid">
+          <button class="cambtn on" id="cb-iso" onclick="setCam('iso')">ISO</button>
+          <button class="cambtn" id="cb-front" onclick="setCam('front')">FRONT</button>
+          <button class="cambtn" id="cb-side" onclick="setCam('side')">SIDE</button>
+          <button class="cambtn" id="cb-top" onclick="setCam('top')">TOP</button>
+          <button class="cambtn" id="cb-rear" onclick="setCam('rear')">REAR</button>
+          <button class="cambtn" id="cb-q45" onclick="setCam('q45')">45°</button>
+        </div>
+        <div class="cr" style="margin-top:4px">
+          <span class="cl">ZOOM</span>
+          <input type="range" min="4" max="30" value="15" class="cs" id="zoom-sl" oninput="onZoom(this.value)">
+        </div>
+        <div class="cr">
+          <span class="cl">OPACITY</span>
+          <input type="range" min="10" max="100" value="100" class="cs" id="opac-sl" oninput="onOpacity(this.value)">
+          <span class="cv" id="opac-v">100%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ C18 LIVE SPECS (collapsed by default) ══ -->
+    <div class="sec-wrap">
+      <div class="sec-hdr" onclick="toggleSec('specs',this)">
+        <span class="sh">C18 Live Specs</span>
+        <span class="sec-arrow">▼</span>
+      </div>
+      <div class="sec-body" id="sec-specs">
+        <div class="sc">
+          <table class="stbl">
+            <tr><td>DISPLACEMENT</td><td>18.1 L</td></tr>
+            <tr><td>BORE × STROKE</td><td>145 × 183 mm</td></tr>
+            <tr><td>CYLINDERS</td><td>In-Line 6</td></tr>
+            <tr><td>COMP RATIO</td><td>16.3:1</td></tr>
+            <tr><td>ASPIRATION</td><td>DITA Twin-TC</td></tr>
+            <tr><td>FUEL SYSTEM</td><td>MEUI Injection</td></tr>
+            <tr><td>ECU</td><td>ADEM™ A4</td></tr>
+            <tr><td>MAX POWER</td><td>597 kW @ 2100</td></tr>
+            <tr><td>MAX TORQUE</td><td id="spec-tq">3165 N·m @ 1800</td></tr>
+            <tr><td>EMISSIONS</td><td>EPA Tier 3 equiv.</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <button class="clrbtn" onclick="clearLeak()">✕ Clear Simulation</button>
   </div>
 
   <!-- CANVAS -->
@@ -345,17 +655,67 @@ body{display:flex;flex-direction:column}
   <!-- RIGHT PANEL -->
   <div class="panel" id="rp">
     <div id="gng" class="go"><div id="gngl">GO</div><div id="gngs">All zones nominal</div></div>
-    <div class="sh">Energy Field Score</div>
-    <div class="dc">
-      <div class="dr"><div class="dn" id="ef-score">0.14</div><div class="di"><div class="dl">FROBENIUS DEVIATION</div><div class="dth" id="ef-thresh" style="color:var(--teal)">BELOW THRESHOLD (2.50)</div></div></div>
-      <div class="dbg"><div class="dbar" id="ef-bar" style="width:5.6%;background:var(--teal)"></div></div>
+
+    <!-- ══ ENERGY FIELD SCORE ══ -->
+    <div class="sec-wrap">
+      <div class="sec-hdr" onclick="toggleSec('efscore',this)">
+        <span class="sh">Energy Field Score</span>
+        <span class="sec-arrow open">▼</span>
+      </div>
+      <div class="sec-body open" id="sec-efscore">
+        <div class="dc">
+          <div class="dr">
+            <div class="dn" id="ef-score">0.14</div>
+            <div class="di">
+              <div class="dl">FROBENIUS DEVIATION</div>
+              <div class="dth" id="ef-thresh" style="color:var(--teal)">BELOW THRESHOLD (2.50)</div>
+            </div>
+          </div>
+          <div class="dbg"><div class="dbar" id="ef-bar" style="width:5.6%;background:var(--teal)"></div></div>
+        </div>
+      </div>
     </div>
-    <div class="sh">Live Sensor Feed</div>
-    <div id="sw"></div>
-    <div class="sh">Energy Field 6×6</div>
-    <div class="efw"><div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--muted);letter-spacing:.07em;margin-bottom:3px">CORRELATION DEVIATION MATRIX</div><div class="efg" id="efg"></div><div class="eflb" id="efl"></div></div>
-    <div class="sh">Recommended Action</div>
-    <div class="ac" id="ac"><div class="act">// SYSTEM RECOMMENDATION</div><div class="acv" id="acv" style="color:var(--teal)">Engine nominal. All twin residuals within ±2% tolerance.</div></div>
+
+    <!-- ══ LIVE SENSOR FEED ══ -->
+    <div class="sec-wrap">
+      <div class="sec-hdr" onclick="toggleSec('sensorfeed',this)">
+        <span class="sh">Live Sensor Feed</span>
+        <span class="sec-arrow open">▼</span>
+      </div>
+      <div class="sec-body open" id="sec-sensorfeed">
+        <div id="sw"></div>
+      </div>
+    </div>
+
+    <!-- ══ ENERGY FIELD MATRIX ══ -->
+    <div class="sec-wrap">
+      <div class="sec-hdr" onclick="toggleSec('efmatrix',this)">
+        <span class="sh">Energy Field 6×6</span>
+        <span class="sec-arrow open">▼</span>
+      </div>
+      <div class="sec-body open" id="sec-efmatrix">
+        <div class="efw">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.07em;margin-bottom:6px">CORRELATION DEVIATION MATRIX</div>
+          <div class="efg" id="efg"></div>
+          <div class="eflb" id="efl"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ RECOMMENDED ACTION ══ -->
+    <div class="sec-wrap">
+      <div class="sec-hdr" onclick="toggleSec('action',this)">
+        <span class="sh">Recommended Action</span>
+        <span class="sec-arrow open">▼</span>
+      </div>
+      <div class="sec-body open" id="sec-action">
+        <div class="ac" id="ac">
+          <div class="act">// SYSTEM RECOMMENDATION</div>
+          <div class="acv" id="acv" style="color:var(--teal)">Engine nominal. All twin residuals within ±2% tolerance.</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 <div id="tip"></div>
@@ -1086,7 +1446,7 @@ function updateSensors(lk) {
     const rc = ra > 0.08 ? 'sbc' : ra > 0.03 ? 'swc' : 'sok';
     const cc = ra > 0.08 ? 'b' : ra > 0.03 ? 'w' : '';
     const sv = document.getElementById('sv-' + k), sf = document.getElementById('sf-' + k), sr = document.getElementById('sr-' + k), sc = document.getElementById('sg-' + k);
-    if (sv) { sv.textContent = v.toFixed(1); sv.style.color = bc; }
+    if (sv) { sv.innerHTML = v.toFixed(1) + '<span class="sgu">' + s.u + '</span>'; sv.style.color = bc; }
     if (sf) { sf.style.width = pct + '%'; sf.style.background = bc; }
     if (sr) { sr.textContent = `RESIDUAL: ${res >= 0 ? '+' : ''}${res.toFixed(1)} ${s.u} (${rp}%)`; sr.className = 'sgr ' + rc; }
     if (sc) sc.className = 'sg ' + cc;
@@ -1126,7 +1486,7 @@ function renderEF(lk) {
       else bg = `rgba(255,80,60,${(0.06 + Math.abs(v) * 0.5).toFixed(2)})`;
       const cell = document.createElement('div'); cell.className = 'efc'; cell.style.background = bg;
       if (isDis) cell.style.boxShadow = '0 0 5px rgba(255,34,68,.5)';
-      cell.innerHTML = `<div class="eft">${EF_CH[r]}↔${EF_CH[c]}: ${v.toFixed(2)}</div>`;
+      cell.innerHTML = `<span class="efc-val">${v.toFixed(2)}</span><div class="eft">${EF_CH[r]}↔${EF_CH[c]}: ${v.toFixed(2)}</div>`;
       g.appendChild(cell);
     }
     const lbl = document.createElement('div'); lbl.className = 'efl'; lbl.textContent = EF_CH[r]; l.appendChild(lbl);
@@ -1204,6 +1564,16 @@ function clearLeak() {
   leakL.intensity = 0;
   [1,2,3,4].forEach(z => ZP[z].forEach(p => { const apply = m => { if (m.material && m.material.emissiveIntensity !== undefined) m.material.emissiveIntensity = 0; }; if (p.isGroup) p.children.forEach(apply); else apply(p); }));
   updateSensors(null); renderEF(null); cTgt.set(0, 0.6, 0);
+}
+
+// ─── Accordion / collapsible sections ──────────────────────────────────────
+function toggleSec(id, hdrEl) {
+  const body  = document.getElementById('sec-' + id);
+  const arrow = hdrEl.querySelector('.sec-arrow');
+  if (!body || !arrow) return;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
 }
 
 function focusZone(z) {

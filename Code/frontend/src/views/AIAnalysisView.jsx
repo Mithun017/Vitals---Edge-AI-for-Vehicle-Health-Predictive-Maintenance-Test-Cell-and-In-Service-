@@ -1,5 +1,9 @@
 import React, { useState } from 'react'
 import { Hourglass, Sliders, Trash2, AlertTriangle } from 'lucide-react'
+import Card from '../components/common/Card'
+import Button from '../components/common/Button'
+import ChartContainer from '../components/common/ChartContainer'
+import StatusBadge from '../components/common/StatusBadge'
 
 export default function AIAnalysisView({ liveData, history }) {
   // Extract diagnostics state
@@ -127,132 +131,145 @@ export default function AIAnalysisView({ liveData, history }) {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minHeight: '100%' }}>
       
       {/* HEADER SYSTEM DETAILS */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>System Uptime: 14d 08h 12m</span>
+          <span style={{ fontSize: '12px', color: 'var(--md-sys-color-on-surface-variant)' }}>System Uptime: 14d 08h 12m</span>
         </div>
         <div style={{
-          backgroundColor: '#1f2937',
-          color: '#ffffff',
+          backgroundColor: 'var(--md-sys-color-surface-container)',
+          color: 'var(--md-sys-color-on-surface)',
           padding: '6px 12px',
           borderRadius: '6px',
           fontSize: '11px',
           fontWeight: '700',
-          fontFamily: 'monospace'
+          fontFamily: 'monospace',
+          border: '1px solid var(--md-sys-color-outline-variant)'
         }}>
           Confidence Interval: 98.4%
         </div>
       </div>
 
       {/* TOP SECTION (RUL + Health score line graph) */}
-      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '24px' }}>
+      <div className="vehicle-metrics-grid responsive-grid" style={{ gap: '24px' }}>
         
         {/* RUL Card */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '16px' }}>
-          <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)' }}>Remaining Useful Life (RUL)</span>
+        <Card style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+             <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--md-sys-color-on-surface-variant)' }}>Remaining Useful Life (RUL)</span>
+             <StatusBadge state={rul < 50 ? 'CRITICAL' : rul < 100 ? 'WARNING' : 'HEALTHY'} />
+          </div>
           
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <h3 style={{ fontSize: '36px', fontWeight: '800' }}>{rul}</h3>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '500' }}>Hours</span>
+              <h3 style={{ fontSize: '42px', fontWeight: '800', color: 'var(--md-sys-color-on-surface)', lineHeight: '1' }}>{rul}</h3>
+              <span style={{ fontSize: '12px', color: 'var(--md-sys-color-on-surface-variant)', fontWeight: '500' }}>Hours Estimated</span>
             </div>
             
             <div style={{
-              width: '70px',
-              height: '70px',
+              width: '56px',
+              height: '56px',
               borderRadius: '50%',
-              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              backgroundColor: 'var(--md-sys-color-secondary-container)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <Hourglass size={30} color="var(--status-info)" />
+              <Hourglass size={28} color="var(--md-sys-color-on-secondary-container)" />
             </div>
           </div>
 
-          {/* Mini trendline */}
-          <div style={{ width: '100%', height: '40px' }}>
-            <svg width="100%" height="100%" viewBox="0 0 160 40" preserveAspectRatio="none">
-              <path d={generateRulPath()} fill="none" stroke="var(--status-info)" strokeWidth="2" />
-            </svg>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--md-sys-color-on-surface-variant)', fontWeight: '600' }}>
+              <span>Degradation: {(100 - (rul/500)*100).toFixed(1)}%</span>
+              <span>Max: 500h</span>
+            </div>
+            <div style={{ width: '100%', height: '8px', backgroundColor: 'var(--md-sys-color-surface-variant)', borderRadius: '4px', overflow: 'hidden' }}>
+              <div style={{ width: `${(rul / 500) * 100}%`, height: '100%', backgroundColor: rul < 50 ? 'var(--md-sys-color-error)' : rul < 100 ? 'var(--md-sys-color-tertiary)' : 'var(--md-sys-color-primary)', transition: 'width 0.5s ease-in-out' }} />
+            </div>
           </div>
-        </div>
+        </Card>
 
         {/* Health Score Evolution line chart */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)' }}>Health Score Evolution</span>
-            <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '4px', border: '1px solid #e5e7eb', background: '#ffffff' }}>Last 72 Hours</span>
-          </div>
-
-          <div style={{ position: 'relative', width: '100%', height: '110px' }}>
-            <svg width="100%" height="100%" viewBox="0 0 450 110">
+        <ChartContainer 
+          title="Health Score Evolution" 
+          badgeText="Last 72 Hours" 
+          badgeBg="var(--md-sys-color-surface-container)" 
+          badgeColor="var(--md-sys-color-on-surface)"
+        >
+          <div style={{ position: 'relative', width: '100%', height: '180px', marginTop: '8px' }}>
+            <svg width="100%" height="100%" viewBox="0 0 450 110" preserveAspectRatio="none" style={{ position: 'absolute', top: 0, left: 0, overflow: 'visible' }}>
+              <defs>
+                <linearGradient id="healthGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--md-sys-color-secondary)" stopOpacity="0.4"/>
+                  <stop offset="100%" stopColor="var(--md-sys-color-secondary)" stopOpacity="0.0"/>
+                </linearGradient>
+              </defs>
+              
               {/* Grid lines */}
-              <line x1="0" y1="27" x2="450" y2="27" stroke="#f3f4f6" strokeWidth="1" />
-              <line x1="0" y1="55" x2="450" y2="55" stroke="#f3f4f6" strokeWidth="1" />
-              <line x1="0" y1="82" x2="450" y2="82" stroke="#f3f4f6" strokeWidth="1" />
+              <line x1="0" y1="27" x2="450" y2="27" stroke="var(--md-sys-color-outline-variant)" strokeWidth="1" vectorEffect="non-scaling-stroke" strokeDasharray="4 4" />
+              <line x1="0" y1="55" x2="450" y2="55" stroke="var(--md-sys-color-outline-variant)" strokeWidth="1" vectorEffect="non-scaling-stroke" strokeDasharray="4 4" />
+              <line x1="0" y1="82" x2="450" y2="82" stroke="var(--md-sys-color-outline-variant)" strokeWidth="1" vectorEffect="non-scaling-stroke" strokeDasharray="4 4" />
 
-              <path d={evolPaths.area} fill="rgba(59, 130, 246, 0.06)" />
-              <path d={evolPaths.line} fill="none" stroke="var(--status-info)" strokeWidth="2.5" />
+              <path d={evolPaths.area} fill="url(#healthGrad)" />
+              <path d={evolPaths.line} fill="none" stroke="var(--md-sys-color-secondary)" strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
             </svg>
 
             {/* Threshold limits annotations */}
-            <div style={{ position: 'absolute', top: '10px', right: '10px', fontSize: '9px', fontWeight: 'bold', color: 'var(--status-go)' }}>Healthy</div>
-            <div style={{ position: 'absolute', top: '50px', right: '10px', fontSize: '9px', fontWeight: 'bold', color: 'var(--status-warning)' }}>Warning</div>
+            <div style={{ position: 'absolute', top: '15px', right: '10px', fontSize: '10px', fontWeight: 'bold', color: 'var(--md-sys-color-primary)', backgroundColor: 'var(--md-sys-color-surface)', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--md-sys-color-outline-variant)' }}>Healthy (95%+)</div>
+            <div style={{ position: 'absolute', top: '48px', right: '10px', fontSize: '10px', fontWeight: 'bold', color: 'var(--md-sys-color-tertiary)', backgroundColor: 'var(--md-sys-color-surface)', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--md-sys-color-outline-variant)' }}>Warning (70%)</div>
           </div>
-        </div>
+        </ChartContainer>
 
       </div>
 
       {/* MIDDLE SECTION (Anomaly feature drivers + State timeline + Radar chart) */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr 1.1fr', gap: '24px' }}>
+      <div className="responsive-grid-cols-3 responsive-grid" style={{ gap: '24px' }}>
         
         {/* Anomaly Drivers (Bar charts) */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)' }}>Anomaly Feature Drivers</span>
+        <Card style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--md-sys-color-on-surface-variant)' }}>Anomaly Feature Drivers</span>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', justifyContent: 'space-around' }}>
             {[
-              { label: 'Vibration', val: vibPercentage, color: 'var(--sidebar-bg-end)', lightColor: 'var(--status-info)' },
-              { label: 'Thermal', val: thermPercentage, color: 'var(--sidebar-bg-end)', lightColor: '#fbbf24' },
-              { label: 'Torque', val: torquePercentage, color: 'var(--sidebar-bg-end)', lightColor: '#10b981' }
-            ].map((driver, idx) => (
-              <div key={idx}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: '600', marginBottom: '6px' }}>
-                  <span>{driver.label}</span>
-                  <span>{driver.val}%</span>
+              { label: 'Vibration', val: vibPercentage },
+              { label: 'Thermal', val: thermPercentage },
+              { label: 'Torque', val: torquePercentage }
+            ].map((driver, idx) => {
+              const getDriverColor = (val) => {
+                if (val > 50) return 'var(--md-sys-color-error)';
+                if (val > 25) return 'var(--md-sys-color-tertiary)';
+                return 'var(--md-sys-color-primary)';
+              };
+              
+              const barColor = getDriverColor(driver.val);
+
+              return (
+                <div key={idx}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: '600', marginBottom: '8px', color: 'var(--md-sys-color-on-surface)' }}>
+                    <span>{driver.label}</span>
+                    <span style={{ color: barColor }}>{driver.val}%</span>
+                  </div>
+                  
+                  {/* Clean progress bar */}
+                  <div style={{ display: 'flex', width: '100%', height: '8px', backgroundColor: 'var(--md-sys-color-surface-variant)', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div style={{
+                      width: `${driver.val}%`,
+                      backgroundColor: barColor,
+                      transition: 'width 0.5s ease-in-out, background-color 0.5s ease'
+                    }} />
+                  </div>
                 </div>
-                
-                {/* 2 bars layout */}
-                <div style={{ display: 'flex', gap: '4px', height: '14px' }}>
-                  <div style={{
-                    width: `${driver.val}%`,
-                    backgroundColor: driver.color,
-                    borderRadius: '3px',
-                    transition: 'width 0.5s'
-                  }} />
-                  <div style={{
-                    width: `${100 - driver.val}%`,
-                    backgroundColor: 'var(--bg-main)',
-                    borderRadius: '3px'
-                  }} />
-                  <div style={{
-                    width: '10px',
-                    backgroundColor: driver.lightColor,
-                    borderRadius: '3px'
-                  }} />
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-        </div>
+        </Card>
 
         {/* State progression timeline */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)' }}>State Progression Timeline</span>
+        <Card style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--md-sys-color-on-surface-variant)' }}>State Progression Timeline</span>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', position: 'relative', paddingLeft: '20px' }}>
             {/* Stepper vertical line */}
@@ -262,119 +279,108 @@ export default function AIAnalysisView({ liveData, history }) {
               left: '5px',
               bottom: '12px',
               width: '2px',
-              backgroundColor: '#e5e7eb'
+              backgroundColor: 'var(--md-sys-color-outline-variant)'
             }} />
 
             {/* Node 1 */}
             <div style={{ position: 'relative' }}>
-              <div style={{ position: 'absolute', left: '-20px', top: '3px', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--status-go)' }} />
-              <span style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'block' }}>T-120 Hours</span>
-              <span style={{ fontSize: '12px', fontWeight: '700' }}>Nominal Operation</span>
+              <div style={{ position: 'absolute', left: '-20px', top: '3px', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--md-sys-color-primary)' }} />
+              <span className="md-typescale-label-small" style={{ color: 'var(--md-sys-color-on-surface-variant)', display: 'block' }}>T-120 Hours</span>
+              <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--md-sys-color-on-surface)' }}>Nominal Operation</span>
             </div>
 
             {/* Node 2 */}
             <div style={{ position: 'relative' }}>
-              <div style={{ position: 'absolute', left: '-20px', top: '3px', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--status-warning)' }} />
-              <span style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'block' }}>T-48 Hours</span>
-              <span style={{ fontSize: '12px', fontWeight: '700' }}>Observation Mode Triggered</span>
-              <p style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>Minor harmonic distortions detected.</p>
+              <div style={{ position: 'absolute', left: '-20px', top: '3px', width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--md-sys-color-tertiary)' }} />
+              <span className="md-typescale-label-small" style={{ color: 'var(--md-sys-color-on-surface-variant)', display: 'block' }}>T-48 Hours</span>
+              <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--md-sys-color-on-surface)' }}>Observation Mode Triggered</span>
+              <p style={{ fontSize: '10px', color: 'var(--md-sys-color-on-surface-variant)', marginTop: '2px' }}>Minor harmonic distortions detected.</p>
             </div>
 
             {/* Node 3 - Current State */}
             <div style={{ position: 'relative' }}>
-              <div style={{ position: 'absolute', left: '-20px', top: '3px', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: state === 'CRITICAL' ? 'var(--status-critical)' : 'var(--status-warning)', border: '2px solid #ffffff' }} />
-              <span style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'block' }}>CURRENT STATE</span>
+              <div style={{ position: 'absolute', left: '-20px', top: '3px', width: '12px', height: '12px', borderRadius: '50%', backgroundColor: state === 'CRITICAL' ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-tertiary)', border: '2px solid var(--md-sys-color-surface)' }} />
+              <span className="md-typescale-label-small" style={{ color: 'var(--md-sys-color-on-surface-variant)', display: 'block' }}>CURRENT STATE</span>
               
               <div style={{
                 marginTop: '4px',
                 padding: '10px',
                 borderRadius: '8px',
-                backgroundColor: state === 'CRITICAL' ? 'var(--status-critical-bg)' : 'var(--status-warning-bg)',
-                border: state === 'CRITICAL' ? '1px solid var(--status-critical)' : '1px solid var(--status-warning)',
-                color: 'var(--text-main)'
+                backgroundColor: state === 'CRITICAL' ? 'var(--md-sys-color-error-container)' : 'var(--md-sys-color-tertiary-container)',
+                border: state === 'CRITICAL' ? '1px solid var(--md-sys-color-error)' : '1px solid var(--md-sys-color-tertiary)',
+                color: 'var(--md-sys-color-on-surface)'
               }}>
                 <span style={{ fontSize: '12px', fontWeight: '800' }}>{state}</span>
-                <p style={{ fontSize: '9px', color: 'var(--text-muted)', marginTop: '4px', lineHeight: '1.3' }}>
-                  AI Rationale: {activeZone !== 'Healthy' ? `${severity} anomaly in {activeZone}. Residual thresholds exceeded.` : "Vibration signatures correlate with verified wear patterns."}
+                <p style={{ fontSize: '9px', color: 'var(--md-sys-color-on-surface-variant)', marginTop: '4px', lineHeight: '1.3' }}>
+                  AI Rationale: {activeZone !== 'Healthy' ? `${severity} anomaly in ${activeZone}. Residual thresholds exceeded.` : "Vibration signatures correlate with verified wear patterns."}
                 </p>
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Multivariate Baseline Radar Comparison */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)' }}>Multivariate Baseline Comparison</span>
+        <Card style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--md-sys-color-on-surface-variant)' }}>Multivariate Baseline Comparison</span>
           
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ width: '180px', height: '160px', position: 'relative' }}>
               <svg width="180" height="160" viewBox="0 0 180 160">
                 {/* Radar Grid Circles */}
-                <circle cx="90" cy="80" r="55" fill="none" stroke="#f3f4f6" strokeWidth="1" />
-                <circle cx="90" cy="80" r="35" fill="none" stroke="#f3f4f6" strokeWidth="1" />
-                <circle cx="90" cy="80" r="15" fill="none" stroke="#f3f4f6" strokeWidth="1" />
+                <circle cx="90" cy="80" r="55" fill="none" stroke="var(--md-sys-color-outline-variant)" strokeWidth="1" />
+                <circle cx="90" cy="80" r="35" fill="none" stroke="var(--md-sys-color-outline-variant)" strokeWidth="1" />
+                <circle cx="90" cy="80" r="15" fill="none" stroke="var(--md-sys-color-outline-variant)" strokeWidth="1" />
                 
                 {/* Polygon paths */}
-                <polygon points={baselinePoints} fill="rgba(75, 85, 99, 0.08)" stroke="rgba(75, 85, 99, 0.3)" strokeWidth="1" />
-                <polygon points={currentPoints} fill="rgba(59, 130, 246, 0.15)" stroke="var(--status-info)" strokeWidth="1.5" />
+                <polygon points={baselinePoints} fill="var(--md-sys-color-surface-container-high)" stroke="var(--md-sys-color-outline-variant)" strokeWidth="1" />
+                <polygon points={currentPoints} fill="var(--md-sys-color-secondary-container)" stroke="var(--md-sys-color-secondary)" strokeWidth="1.5" />
                 
                 {/* Axis Labels */}
-                <text x="90" y="20" fill="var(--text-muted)" fontSize="8" textAnchor="middle">Current</text>
-                <text x="155" y="80" fill="var(--text-muted)" fontSize="8" textAnchor="start">Thermal</text>
-                <text x="130" y="145" fill="var(--text-muted)" fontSize="8" textAnchor="start">Conducting</text>
-                <text x="50" y="145" fill="var(--text-muted)" fontSize="8" textAnchor="end">Temp</text>
-                <text x="25" y="80" fill="var(--text-muted)" fontSize="8" textAnchor="end">Torque</text>
+                <text x="90" y="20" fill="var(--md-sys-color-on-surface-variant)" fontSize="8" textAnchor="middle">Current</text>
+                <text x="155" y="80" fill="var(--md-sys-color-on-surface-variant)" fontSize="8" textAnchor="start">Thermal</text>
+                <text x="130" y="145" fill="var(--md-sys-color-on-surface-variant)" fontSize="8" textAnchor="start">Conducting</text>
+                <text x="50" y="145" fill="var(--md-sys-color-on-surface-variant)" fontSize="8" textAnchor="end">Temp</text>
+                <text x="25" y="80" fill="var(--md-sys-color-on-surface-variant)" fontSize="8" textAnchor="end">Torque</text>
               </svg>
             </div>
 
             {/* Radar Legend */}
-            <div style={{ display: 'flex', gap: '12px', fontSize: '9px', marginTop: '6px' }}>
+            <div style={{ display: 'flex', gap: '12px', fontSize: '9px', marginTop: '6px', color: 'var(--md-sys-color-on-surface)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <div style={{ width: '8px', height: '8px', border: '1px solid rgba(75,85,99,0.3)', backgroundColor: 'rgba(75,85,99,0.08)' }} />
+                <div style={{ width: '8px', height: '8px', border: '1px solid var(--md-sys-color-outline-variant)', backgroundColor: 'var(--md-sys-color-surface-container-high)' }} />
                 <span>Baseline (T-30d)</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <div style={{ width: '8px', height: '8px', border: '1.5px solid var(--status-info)', backgroundColor: 'rgba(59,130,246,0.15)' }} />
+                <div style={{ width: '8px', height: '8px', border: '1.5px solid var(--md-sys-color-secondary)', backgroundColor: 'var(--md-sys-color-secondary-container)' }} />
                 <span>Current AI Model</span>
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
       </div>
 
       {/* SEPARATOR */}
-      <div style={{ height: '1px', backgroundColor: '#e5e7eb', margin: '12px 0' }} />
+      <div style={{ height: '1px', backgroundColor: 'var(--md-sys-color-outline-variant)', margin: '12px 0' }} />
 
       {/* BOTTOM SECTION: OVERRIDES & FAULT INJECTION CONTROLS GRID */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px' }}>
+      <div className="dashboard-focus-grid responsive-grid" style={{ gap: '24px' }}>
         
         {/* LEFT COL: INTERACTIVE SENSOR OVERRIDES SLIDERS */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e5e7eb', paddingBottom: '12px' }}>
-            <h3 style={{ fontSize: '15px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Card style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--md-sys-color-outline-variant)', paddingBottom: '12px' }}>
+            <h3 style={{ fontSize: '15px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--md-sys-color-on-surface)' }}>
               <Sliders size={18} />
               Live Sensor Overrides (Interactive Level Meters)
             </h3>
-            <button 
+            <Button 
+              variant="tonal"
+              size="sm"
               onClick={handleClearOverrides}
-              style={{
-                padding: '6px 12px',
-                background: '#f3f4f6',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                fontSize: '11px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                color: 'var(--text-main)'
-              }}
             >
               <Trash2 size={12} />
               Reset Sliders
-            </button>
+            </Button>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -392,11 +398,13 @@ export default function AIAnalysisView({ liveData, history }) {
               const currentVal = actualData[slider.key] || slider.min;
               return (
                 <div key={slider.key} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: '600' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: '600', color: 'var(--md-sys-color-on-surface)' }}>
                     <span>{slider.label}</span>
                     <span className="mono-font">{currentVal.toFixed(slider.step ? 1 : 0)} {slider.unit}</span>
                   </div>
                   <input
+                    id={`slider-${slider.key}`}
+                    name={`slider-${slider.key}`}
                     type="range"
                     min={slider.min}
                     max={slider.max}
@@ -405,41 +413,45 @@ export default function AIAnalysisView({ liveData, history }) {
                     onChange={e => handleSliderChange(slider.key, e.target.value)}
                     style={{
                       width: '100%',
-                      accentColor: 'var(--cat-yellow)',
+                      accentColor: 'var(--md-sys-color-primary)',
                       cursor: 'ew-resize',
                       height: '6px',
                       borderRadius: '3px',
-                      background: '#e5e7eb'
+                      background: 'var(--md-sys-color-outline-variant)'
                     }}
                   />
                 </div>
               );
             })}
           </div>
-        </div>
+        </Card>
 
         {/* RIGHT COL: FAULT INJECTION PANEL & STREAM CONTROLS */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           
           {/* FAULT INJECTION CONTROL PANEL */}
-          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <h3 style={{ fontSize: '15px', fontWeight: '700', borderBottom: '1px solid #e5e7eb', paddingBottom: '12px' }}>
+          <Card style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <h3 style={{ fontSize: '15px', fontWeight: '700', borderBottom: '1px solid var(--md-sys-color-outline-variant)', paddingBottom: '12px', color: 'var(--md-sys-color-on-surface)' }}>
               Fault Injection Control Panel
             </h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>SUSPECT ZONE</span>
+                <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--md-sys-color-on-surface-variant)', display: 'block', marginBottom: '6px' }}>SUSPECT ZONE</span>
                 <select 
+                  id="fault-zone"
+                  name="fault-zone"
                   value={selectedZone}
                   onChange={e => setSelectedZone(e.target.value)}
                   style={{
                     width: '100%',
                     padding: '10px',
                     borderRadius: '6px',
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid var(--md-sys-color-outline-variant)',
                     outline: 'none',
-                    fontSize: '13px'
+                    fontSize: '13px',
+                    background: 'var(--md-sys-color-surface-container)',
+                    color: 'var(--md-sys-color-on-surface)'
                   }}
                 >
                   <option value="Zone 1">Zone 1 — Intake Air</option>
@@ -452,94 +464,75 @@ export default function AIAnalysisView({ liveData, history }) {
               </div>
 
               <div>
-                <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>SEVERITY LEVEL</span>
+                <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--md-sys-color-on-surface-variant)', display: 'block', marginBottom: '6px' }}>SEVERITY LEVEL</span>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
                   {['Small', 'Medium', 'Critical'].map(level => (
-                    <button
+                    <Button
                       key={level}
                       onClick={() => setSelectedSeverity(level)}
                       style={{
+                        flex: 1,
                         padding: '8px',
-                        borderRadius: '6px',
-                        border: selectedSeverity === level ? '2px solid #000000' : '1px solid #e5e7eb',
-                        background: level === 'Critical' ? 'var(--status-critical-bg)' : (level === 'Medium' ? 'var(--status-warning-bg)' : 'var(--status-go-bg)'),
-                        color: level === 'Critical' ? 'var(--status-critical)' : (level === 'Medium' ? 'var(--status-warning)' : 'var(--status-go)'),
+                        border: selectedSeverity === level ? '2px solid var(--md-sys-color-on-surface)' : '1px solid var(--md-sys-color-outline-variant)',
+                        background: level === 'Critical' ? 'var(--md-sys-color-error-container)' : (level === 'Medium' ? 'var(--md-sys-color-tertiary-container)' : 'var(--md-sys-color-primary-container)'),
+                        color: level === 'Critical' ? 'var(--md-sys-color-error)' : (level === 'Medium' ? 'var(--md-sys-color-tertiary)' : 'var(--md-sys-color-primary)'),
                         fontWeight: '700',
-                        cursor: 'pointer',
                         fontSize: '12px'
                       }}
                     >
                       {level.toUpperCase()}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
 
               {/* Action buttons */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', marginTop: '12px' }}>
-                <button
+                <Button
+                  variant="primary"
                   onClick={handleInjectFault}
-                  style={{
-                    padding: '12px',
-                    borderRadius: '8px',
-                    background: 'var(--cat-yellow)',
-                    color: '#000000',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    border: 'none',
-                    fontSize: '13px'
-                  }}
                 >
                   INJECT FAULT
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="outlined"
                   onClick={handleClearFault}
-                  style={{
-                    padding: '12px',
-                    borderRadius: '8px',
-                    background: '#f3f4f6',
-                    color: 'var(--text-main)',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    border: '1px solid #e5e7eb',
-                    fontSize: '13px'
-                  }}
                 >
                   CLEAR
-                </button>
+                </Button>
               </div>
             </div>
-          </div>
+          </Card>
 
           {/* ACTIVE SIMULATION STATUS */}
-          <div className="glass-card" style={{
+          <Card style={{
             display: 'flex',
             flexDirection: 'column',
             gap: '12px',
-            border: activeZone !== 'Healthy' ? '2px solid var(--status-critical)' : '1px solid #e5e7eb'
+            border: activeZone !== 'Healthy' ? '2px solid var(--md-sys-color-error)' : '1px solid var(--md-sys-color-outline-variant)'
           }}>
-            <h3 style={{ fontSize: '14px', fontWeight: '700' }}>Active Simulation Status</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px' }}>
+            <h3 className="md-typescale-title-small" style={{ color: 'var(--md-sys-color-on-surface)' }}>Active Simulation Status</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', color: 'var(--md-sys-color-on-surface)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Fault Active:</span>
-                <span style={{ fontWeight: '700', color: activeZone !== 'Healthy' ? 'var(--status-critical)' : 'var(--status-go)' }}>
+                <span style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>Fault Active:</span>
+                <span style={{ fontWeight: '700', color: activeZone !== 'Healthy' ? 'var(--md-sys-color-error)' : 'var(--md-sys-color-primary)' }}>
                   {activeZone !== 'Healthy' ? 'YES' : 'NO'}
                 </span>
               </div>
               {activeZone !== 'Healthy' && (
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Target Zone:</span>
+                    <span style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>Target Zone:</span>
                     <span style={{ fontWeight: '700' }}>{activeZone}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Severity:</span>
+                    <span style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>Severity:</span>
                     <span style={{ fontWeight: '700' }}>{severity}</span>
                   </div>
                 </>
               )}
             </div>
-          </div>
+          </Card>
 
         </div>
 
