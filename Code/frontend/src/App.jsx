@@ -21,7 +21,21 @@ export default function App() {
   const location = useLocation()
   const navigate = useNavigate()
   const activeView = location.pathname.split('/')[1] || 'dashboard'
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem('isSidebarCollapsed');
+    return saved !== null ? JSON.parse(saved) : false;
+  })
+  const [sidebarPosition, setSidebarPosition] = useState(() => {
+    return localStorage.getItem('sidebarPosition') || 'left';
+  })
+
+  useEffect(() => {
+    localStorage.setItem('isSidebarCollapsed', JSON.stringify(isSidebarCollapsed));
+  }, [isSidebarCollapsed]);
+
+  useEffect(() => {
+    localStorage.setItem('sidebarPosition', sidebarPosition);
+  }, [sidebarPosition]);
 
   // Use custom hook for telemetry data
   const { connectionStatus, liveData, history, alerts } = useTelemetryData();
@@ -67,12 +81,14 @@ export default function App() {
   }, [chatMessages, isChatOpen]);
 
   return (
-    <div style={{ display: 'flex', width: '100vw', height: '100vh', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', width: '100vw', height: '100vh', overflow: 'hidden', flexDirection: sidebarPosition === 'right' ? 'row-reverse' : 'row' }}>
       
       {/* SIDEBAR NAVIGATION PANEL */}
       <Sidebar 
         isSidebarCollapsed={isSidebarCollapsed} 
         setIsSidebarCollapsed={setIsSidebarCollapsed}
+        sidebarPosition={sidebarPosition}
+        setSidebarPosition={setSidebarPosition}
         activeView={activeView} 
         navigate={navigate} 
         connectionStatus={connectionStatus} 
@@ -127,6 +143,7 @@ export default function App() {
         handleChatSubmit={handleChatSubmit}
         isChatLoading={isChatLoading}
         chatEndRef={chatEndRef}
+        sidebarPosition={sidebarPosition}
       />
     </div>
   );

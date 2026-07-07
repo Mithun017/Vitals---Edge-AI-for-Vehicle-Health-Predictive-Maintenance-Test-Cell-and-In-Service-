@@ -1,5 +1,5 @@
 import React from 'react';
-import { Radio, Menu } from 'lucide-react';
+import { Radio } from 'lucide-react';
 import Button from './common/Button';
 
 export default function Header({ activeView, navigate, connectionStatus }) {
@@ -8,14 +8,7 @@ export default function Header({ activeView, navigate, connectionStatus }) {
   return (
     <div className="header-container">
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0, flex: 1 }}>
-        <Button 
-          className="mobile-menu-toggle" 
-          variant="text"
-          iconOnly
-          onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-        >
-          <Menu size={20} />
-        </Button>
+
         <h2 className="header-title">
           {activeView === 'dashboard' && "Fleet Overview Dashboard"}
           {activeView === 'vehicle' && "Vehicle Health Inspector"}

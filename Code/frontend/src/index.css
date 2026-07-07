@@ -263,50 +263,69 @@ body, html, #root {
   flex-direction: column;
   justify-content: space-between;
   border-right: 1px solid var(--md-sys-color-outline-variant);
+  border-left: 1px solid transparent; /* for smooth border swap when moved to right */
   z-index: 100;
   flex-shrink: 0;
   overflow: hidden;
-  /* Material 3 Standard Emphasized Decelerate */
-  transition: width 0.4s cubic-bezier(0.2, 0, 0, 1), transform 0.4s cubic-bezier(0.2, 0, 0, 1), background-color 0.3s ease;
+  /* Upgraded Material 3 Standard Emphasized Decelerate */
+  transition: width 0.4s cubic-bezier(0.2, 0, 0, 1), transform 0.4s cubic-bezier(0.2, 0, 0, 1), background-color 0.3s ease, padding 0.3s ease, border-color 0.4s ease;
+}
+
+.app-layout-sidebar.right-side {
+  border-right-color: transparent;
+  border-left-color: var(--md-sys-color-outline-variant);
 }
 
 .app-layout-sidebar.closed {
   width: 80px;
 }
 
-/* Sidebar overlay on mobile */
+/* Upgraded Logo Branding Animation */
+.sidebar-logo-header {
+  padding: 24px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  overflow: hidden;
+  cursor: pointer;
+  transition: background-color 0.2s ease, padding 0.4s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.sidebar-logo-header:hover {
+  background-color: var(--md-sys-color-surface-variant);
+}
+
+.sidebar-logo-header:active {
+  transform: scale(0.98); /* subtle click interaction */
+}
+
+.sidebar-logo-header.collapsed {
+  padding: 24px 12px;
+  justify-content: center;
+}
+
+/* Sidebar overlay on mobile - adjusted for collapsed state instead of sliding */
 @media (max-width: 768px) {
   .app-layout-sidebar {
+    /* Keep it in normal flow, but it overrides everything when open unless we use fixed */
+    /* Wait, making it fixed but using width 80px when closed provides quick access to the logo */
     position: fixed;
     height: 100%;
     width: 260px;
+    z-index: 1000;
   }
   .app-layout-sidebar.closed {
-    transform: translateX(-100%);
-    width: 260px; /* Don't shrink width, just slide off screen */
+    width: 80px;
+    transform: none; /* Let the logo stay on screen for collapsing */
+  }
+  /* Push main content to the right so it doesn't get covered by the 80px sidebar */
+  .header-container {
+    padding-left: 96px; /* 80px + 16px */
   }
 }
 
-.mobile-menu-toggle {
-  display: none;
-  background: transparent;
-  border: none;
-  color: var(--md-sys-color-on-surface);
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  transition: background-color 0.2s;
-}
-.mobile-menu-toggle:hover {
-  background-color: var(--md-sys-color-surface-variant);
-}
-@media (max-width: 768px) {
-  .mobile-menu-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-}
+
 
 /* Header Responsive Layout */
 .header-container {

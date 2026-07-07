@@ -10,17 +10,19 @@ export default function Chatbot({
   setChatInput,
   handleChatSubmit,
   isChatLoading,
-  chatEndRef
+  chatEndRef,
+  sidebarPosition
 }) {
   return (
     <div style={{
       position: 'fixed',
       bottom: '24px',
-      right: '24px',
+      right: sidebarPosition === 'right' ? undefined : '24px',
+      left: sidebarPosition === 'right' ? '24px' : undefined,
       zIndex: 1000,
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'flex-end'
+      alignItems: sidebarPosition === 'right' ? 'flex-start' : 'flex-end'
     }}>
       {/* Chatbot Window */}
       <div style={{
@@ -38,7 +40,7 @@ export default function Chatbot({
         opacity: isChatOpen ? 1 : 0,
         transform: isChatOpen ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(20px)',
         pointerEvents: isChatOpen ? 'auto' : 'none',
-        transformOrigin: 'bottom right',
+        transformOrigin: sidebarPosition === 'right' ? 'bottom left' : 'bottom right',
         transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
       }}>
           {/* Chatbot Header */}

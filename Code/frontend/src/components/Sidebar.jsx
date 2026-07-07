@@ -1,27 +1,25 @@
 import React from 'react';
-import { LayoutDashboard, Truck, Binary, Activity, Wrench, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Truck, Binary, Activity, Wrench, LogOut, ArrowLeftRight } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import Button from './common/Button';
 
 export default function Sidebar({ 
   isSidebarCollapsed, 
   setIsSidebarCollapsed,
+  sidebarPosition,
+  setSidebarPosition,
   activeView, 
   navigate, 
   connectionStatus 
 }) {
   return (
-    <div className={`app-layout-sidebar ${isSidebarCollapsed ? 'closed' : ''}`}>
+    <div className={`app-layout-sidebar ${isSidebarCollapsed ? 'closed' : ''} ${sidebarPosition === 'right' ? 'right-side' : ''}`}>
       <div>
         {/* Logo Brand Header */}
-        <div style={{
-          padding: '24px 20px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          borderBottom: '1px solid var(--md-sys-color-outline-variant)',
-          overflow: 'hidden'
-        }}>
+        <div 
+          className={`sidebar-logo-header ${isSidebarCollapsed ? 'collapsed' : ''}`}
+          onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        >
           <div style={{
             background: 'var(--md-sys-color-primary)',
             color: 'var(--md-sys-color-on-primary)',
@@ -78,13 +76,13 @@ export default function Sidebar({
 
         <Button 
           variant="text"
-          onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          onClick={() => setSidebarPosition(prev => prev === 'left' ? 'right' : 'left')}
           className={`sidebar-nav-item ${isSidebarCollapsed ? 'collapsed' : ''}`}
-          title={isSidebarCollapsed ? "Expand Sidebar" : undefined}
+          title={isSidebarCollapsed ? `Move to ${sidebarPosition === 'left' ? 'Right' : 'Left'}` : undefined}
           style={{ padding: isSidebarCollapsed ? 0 : '12px 16px', justifyContent: isSidebarCollapsed ? 'center' : 'flex-start' }}
         >
-          {isSidebarCollapsed ? <ChevronRight size={20} color="currentColor" /> : <ChevronLeft size={20} color="currentColor" />}
-          {!isSidebarCollapsed && <span>Collapse</span>}
+          <ArrowLeftRight size={20} color="currentColor" />
+          {!isSidebarCollapsed && <span>Move to {sidebarPosition === 'left' ? 'Right' : 'Left'}</span>}
         </Button>
 
         <Button 
